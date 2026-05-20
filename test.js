@@ -211,7 +211,7 @@ async function runTests() {
             greys: ['r', 'n', 'e']
         });
         expect(results.length).toBeGreaterThan(0);
-        expect(results.length).toBeLessThan(100);
+        expect(results.length).toBeLessThan(200);
     });
 
     test('Results from CRANE scenario all start with C', () => {

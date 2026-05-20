@@ -1,7 +1,7 @@
 {
-  "name": "wordle-solver",
+  "name": "crackle",
   "version": "1.0.0",
-  "description": "A personal Wordle constraint filter and solver",
+  "description": "Crackle — a personal Wordle constraint filter and solver",
   "main": "index.js",
   "type": "module",
   "scripts": {

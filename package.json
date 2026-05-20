@@ -1,0 +1,13 @@
+{
+  "name": "wordle-solver",
+  "version": "1.0.0",
+  "description": "A personal Wordle constraint filter and solver",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

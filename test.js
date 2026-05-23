@@ -282,6 +282,22 @@ async function runTests() {
         expect(suggestions.length).toBe(0);
     });
 
+    // ── Real World Test ──────────────────
+console.log('\n🌍 Real World Test — CHU__');
+
+test('CHU start, excluding A,I,R,O,M,P,E,S,T,L returns valid words', () => {
+    const results = filterWords({
+        greens:  ['c', 'h', 'u', null, null],
+        yellows: {},
+        greys:   ['a', 'i', 'r', 'o', 'm', 'p', 'e', 's', 't', 'l']
+    });
+
+    console.log(`     Found ${results.length} words:`);
+    results.forEach(w => console.log(`     → ${w.toUpperCase()}`));
+
+    expect(results.length).toBeGreaterThan(0);
+});
+
     // ── Summary ──────────────────────────
     console.log(`\n${'─'.repeat(40)}`);
     console.log(`Results: ${passed} passed, ${failed} failed`);

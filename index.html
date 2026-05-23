@@ -15,7 +15,6 @@
   --raised:         #1C1C2A;
   --border:         #252538;
   --accent:         #C8553D;
-  --accent-dim:     rgba(200, 85, 61, 0.31);
   --text-primary:   #E8E4DC;
   --text-secondary: #C4C2E0;
   --text-ui:        #A8A8C4;
@@ -36,7 +35,6 @@
   --radius-btn:     8px;
 }
 
-/* ── RESET & BASE ──────────────────────────────── */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
@@ -61,7 +59,6 @@ body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  position: relative;
 }
 
 .phone-notch {
@@ -82,614 +79,179 @@ body {
 }
 
 /* ── SCREENS ───────────────────────────────────── */
-.screen {
-  display: none;
-  flex-direction: column;
-  flex: 1;
-  gap: 13px;
-  overflow: hidden;
-}
-.screen.active {
-  display: flex;
-}
+.screen { display: none; flex-direction: column; flex: 1; gap: 12px; overflow: hidden; }
+.screen.active { display: flex; }
 
-/* ── APP HEADER ────────────────────────────────── */
-.app-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-shrink: 0;
-}
-
-.app-logo {
-  font-family: var(--font-brand);
-  font-size: 24px;
-  font-weight: 900;
-  color: var(--text-primary);
-  line-height: 1;
-}
-.app-logo em {
-  color: var(--accent);
-  font-style: normal;
-}
-
-.app-tagline {
-  font-family: var(--font-mono);
-  font-size: 7px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--text-ui);
-  margin-top: 2px;
-}
-
-.today-chip {
-  font-family: var(--font-mono);
-  font-size: 9px;
-  color: var(--accent);
-  background: var(--raised);
-  border: 1px solid rgba(200,85,61,0.3);
-  border-radius: var(--radius-btn);
-  padding: 4px 10px;
-  display: none;
-}
+/* ── HEADER ────────────────────────────────────── */
+.app-header { display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+.app-logo { font-family: var(--font-brand); font-size: 24px; font-weight: 900; color: var(--text-primary); line-height: 1; }
+.app-logo em { color: var(--accent); font-style: normal; }
+.app-tagline { font-family: var(--font-mono); font-size: 7px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-ui); margin-top: 2px; }
+.today-chip { font-family: var(--font-mono); font-size: 9px; color: var(--accent); background: var(--raised); border: 1px solid rgba(200,85,61,0.3); border-radius: var(--radius-btn); padding: 4px 10px; display: none; }
 .today-chip.visible { display: block; }
 
 /* ── SECTION LABEL ─────────────────────────────── */
-.section-label {
-  font-family: var(--font-mono);
-  font-size: 7px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--text-ui);
-  margin-bottom: 7px;
-  flex-shrink: 0;
-}
+.section-label { font-family: var(--font-mono); font-size: 7px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-ui); margin-bottom: 7px; flex-shrink: 0; }
 
-/* ── GUESS GRID ────────────────────────────────── */
-.guess-grid-wrap { flex-shrink: 0; }
-
-.guess-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.guess-row {
-  display: flex;
-  gap: 5px;
-  align-items: center;
-}
-
-.row-num {
-  font-family: var(--font-mono);
-  font-size: 7px;
-  width: 14px;
-  text-align: right;
-  flex-shrink: 0;
-  color: var(--text-muted);
-}
-
-/* ── TILES ─────────────────────────────────────── */
-.tile {
-  width: 42px;
-  height: 42px;
-  border-radius: var(--radius-tile);
-  border: 1.5px solid var(--border);
-  background: var(--raised);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-mono);
-  font-size: 16px;
-  font-weight: 700;
-  color: transparent;
-  cursor: pointer;
-  flex-shrink: 0;
-  transition: background 0.15s, border-color 0.15s, color 0.15s;
-  user-select: none;
-  -webkit-user-select: none;
-  position: relative;
-}
-
-/* Empty row tiles — show letter input prompt */
-.tile.empty-input {
-  cursor: text;
-}
-
-/* Tile state: letter entered but not yet assigned a colour */
-.tile.has-letter {
-  color: var(--text-ui);
-}
-
-/* Tile states matching Wordle */
-.tile.absent {
-  background: var(--raised);
-  border-color: var(--border);
-  color: var(--text-ui);
-}
-.tile.present {
-  background: var(--present-bg);
-  border-color: var(--present-border);
-  color: var(--present-text);
-}
-.tile.correct {
-  background: var(--correct-bg);
-  border-color: var(--correct-border);
-  color: var(--correct-text);
-}
-
-/* Active input row highlight */
-.guess-row.active-row .tile.has-letter {
-  border-color: var(--text-dim);
-}
-
-/* ── LETTER INPUT ──────────────────────────────── */
-.letter-input-wrap {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-  flex-shrink: 0;
-}
-
+/* ── INPUT ROW ─────────────────────────────────── */
+.input-row { display: flex; gap: 6px; align-items: stretch; flex-shrink: 0; }
 .letter-input {
   flex: 1;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-btn);
-  padding: 8px 12px;
+  padding: 9px 12px;
   font-family: var(--font-mono);
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 700;
   color: var(--text-primary);
   text-transform: uppercase;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.25em;
   outline: none;
   text-align: center;
+  min-width: 0;
 }
-.letter-input::placeholder {
-  color: var(--text-dim);
-  font-size: 11px;
-  letter-spacing: 0.1em;
-  font-weight: 400;
-}
-.letter-input:focus {
-  border-color: var(--text-dim);
-}
+.letter-input::placeholder { color: var(--text-dim); font-size: 10px; letter-spacing: 0.08em; font-weight: 400; font-family: var(--font-body); }
+.letter-input:focus { border-color: var(--text-dim); }
+.letter-input.error { border-color: var(--accent); }
 
-.add-btn {
+.btn-add {
   background: var(--accent);
   border: none;
   border-radius: var(--radius-btn);
-  padding: 8px 14px;
+  padding: 9px 16px;
   font-family: var(--font-mono);
   font-size: 11px;
   font-weight: 700;
   color: #fff;
   cursor: pointer;
-  letter-spacing: 0.08em;
+  white-space: nowrap;
   flex-shrink: 0;
 }
-.add-btn:active { opacity: 0.8; }
+.btn-add:active { opacity: 0.8; }
 
-.clear-btn {
+.btn-reset {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-btn);
-  padding: 8px 12px;
+  padding: 9px 12px;
   font-family: var(--font-mono);
   font-size: 10px;
   color: var(--text-muted);
   cursor: pointer;
+  white-space: nowrap;
   flex-shrink: 0;
 }
-.clear-btn:active { opacity: 0.7; }
+.btn-reset:active { opacity: 0.7; }
 
-/* ── CONSTRAINTS BOX ───────────────────────────── */
-.constraints-box {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-card);
-  padding: 10px 12px;
-  flex-shrink: 0;
-}
+/* ── GUESS GRID ────────────────────────────────── */
+.guess-grid-wrap { flex-shrink: 0; }
+.guess-grid { display: flex; flex-direction: column; gap: 5px; }
+.guess-row { display: flex; gap: 5px; align-items: center; }
+.row-num { font-family: var(--font-mono); font-size: 7px; width: 14px; text-align: right; flex-shrink: 0; color: var(--text-muted); }
 
-.pills {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-  margin-top: 6px;
-  min-height: 20px;
-}
-
-.pill {
-  padding: 3px 9px;
-  border-radius: var(--radius-pill);
-  font-family: var(--font-mono);
-  font-size: 9px;
-  font-weight: 700;
-  border: 1px solid;
-}
-.pill.p-correct {
-  background: var(--correct-bg);
-  border-color: var(--correct-border);
-  color: var(--correct-text);
-}
-.pill.p-present {
-  background: var(--present-bg);
-  border-color: var(--present-border);
-  color: var(--present-text);
-}
-.pill.p-absent {
+/* ── TILES ─────────────────────────────────────── */
+.tile {
+  width: 42px; height: 42px;
+  border-radius: var(--radius-tile);
+  border: 1.5px solid var(--border);
   background: var(--raised);
-  border-color: var(--border);
-  color: var(--text-ui);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-mono); font-size: 16px; font-weight: 700;
+  color: transparent;
+  flex-shrink: 0;
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
+  user-select: none;
 }
+.tile.clickable { cursor: pointer; }
+.tile.clickable:active { opacity: 0.75; }
+.tile.absent  { color: var(--text-ui); background: var(--raised); border-color: var(--border); }
+.tile.present { color: var(--present-text); background: var(--present-bg); border-color: var(--present-border); }
+.tile.correct { color: var(--correct-text); background: var(--correct-bg); border-color: var(--correct-border); }
 
-.no-constraints {
-  font-family: var(--font-body);
-  font-size: 11px;
-  color: var(--text-dim);
-  font-style: italic;
-}
+/* ── CONSTRAINTS ───────────────────────────────── */
+.constraints-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-card); padding: 10px 12px; flex-shrink: 0; }
+.pills { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; min-height: 22px; }
+.pill { padding: 3px 9px; border-radius: var(--radius-pill); font-family: var(--font-mono); font-size: 9px; font-weight: 700; border: 1px solid; }
+.pill.p-correct { background: var(--correct-bg); border-color: var(--correct-border); color: var(--correct-text); }
+.pill.p-present { background: var(--present-bg); border-color: var(--present-border); color: var(--present-text); }
+.pill.p-absent  { background: var(--raised); border-color: var(--border); color: var(--text-ui); }
+.no-constraints { font-family: var(--font-body); font-size: 11px; color: var(--text-dim); font-style: italic; }
 
 /* ── SUGGESTIONS ───────────────────────────────── */
-.sugg-section {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 0;
-}
-
-.sugg-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  margin-bottom: 7px;
-  flex-shrink: 0;
-}
-
-.sugg-count {
-  font-family: var(--font-mono);
-  font-size: 8px;
-  color: var(--accent);
-}
-
-.sugg-list {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  overflow-y: auto;
-  flex: 1;
-  padding-bottom: 4px;
-}
+.sugg-section { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+.sugg-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 7px; flex-shrink: 0; }
+.sugg-count { font-family: var(--font-mono); font-size: 8px; color: var(--accent); }
+.sugg-list { display: flex; flex-direction: column; gap: 4px; overflow-y: auto; flex: 1; padding-bottom: 4px; }
 .sugg-list::-webkit-scrollbar { width: 3px; }
-.sugg-list::-webkit-scrollbar-track { background: transparent; }
 .sugg-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
-.sugg-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-radius: 8px;
-  padding: 8px 10px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  flex-shrink: 0;
-}
+.sugg-item { display: flex; align-items: center; justify-content: space-between; border-radius: 8px; padding: 8px 10px; background: var(--surface); border: 1px solid var(--border); flex-shrink: 0; }
 .sugg-item.best { border-color: rgba(200,85,61,0.44); }
-.sugg-item.used { opacity: 0.6; background: #121220; }
-
-.sugg-left { display: flex; align-items: baseline; gap: 0; }
-
-.sugg-word {
-  font-family: var(--font-mono);
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  color: var(--text-secondary);
-}
+.sugg-word { font-family: var(--font-mono); font-size: 13px; font-weight: 700; letter-spacing: 0.1em; color: var(--text-secondary); }
 .sugg-word.best { color: var(--correct-text); }
-.sugg-word.used { color: var(--text-muted); text-decoration: line-through; }
-
-.sugg-badge {
-  font-family: var(--font-body);
-  font-size: 7px;
-  color: var(--accent);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  margin-left: 5px;
-}
-
-.sugg-used-tag {
-  font-family: var(--font-body);
-  font-size: 7px;
-  color: var(--text-muted);
-  font-style: italic;
-  margin-left: 5px;
-}
-
-.sugg-right {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.s-bar {
-  width: 32px;
-  height: 3px;
-  border-radius: 2px;
-  background: var(--border);
-  overflow: hidden;
-}
+.sugg-badge { font-family: var(--font-body); font-size: 7px; color: var(--accent); letter-spacing: 0.08em; text-transform: uppercase; margin-left: 5px; }
+.sugg-right { display: flex; align-items: center; gap: 5px; }
+.s-bar { width: 32px; height: 3px; border-radius: 2px; background: var(--border); overflow: hidden; }
 .s-fill { height: 100%; border-radius: 2px; }
-
-.s-num {
-  font-family: var(--font-mono);
-  font-size: 7px;
-  width: 20px;
-  text-align: right;
-  color: var(--text-muted);
-}
+.s-num { font-family: var(--font-mono); font-size: 7px; width: 20px; text-align: right; color: var(--text-muted); }
 
 /* Empty state */
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  flex: 1;
-  gap: 10px;
-  text-align: center;
-  padding: 10px 0;
-}
+.empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; gap: 10px; text-align: center; padding: 10px 0; }
+.empty-heading { font-family: var(--font-brand); font-size: 16px; font-weight: 700; color: #C8C6E0; line-height: 1.3; }
+.empty-body { font-family: var(--font-body); font-size: 11px; color: var(--text-ui); line-height: 1.5; max-width: 200px; }
+.starter-label { font-family: var(--font-mono); font-size: 7px; color: var(--text-ui); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 6px; }
+.starter-tiles { display: flex; gap: 4px; justify-content: center; }
+.starter-tile { width: 32px; height: 32px; border-radius: 6px; border: 1.5px solid var(--border); background: var(--raised); display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 13px; font-weight: 700; color: var(--text-secondary); }
 
-.empty-heading {
-  font-family: var(--font-brand);
-  font-size: 16px;
-  font-weight: 700;
-  color: #C8C6E0;
-  line-height: 1.3;
-}
-
-.empty-body {
-  font-family: var(--font-body);
-  font-size: 11px;
-  color: var(--text-ui);
-  line-height: 1.5;
-  max-width: 200px;
-}
-
-.starter-label {
-  font-family: var(--font-mono);
-  font-size: 7px;
-  color: var(--text-ui);
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  margin-bottom: 6px;
-}
-
-.starter-tiles {
-  display: flex;
-  gap: 4px;
-  justify-content: center;
-}
-
-.starter-tile {
-  width: 32px;
-  height: 32px;
-  border-radius: 6px;
-  border: 1.5px solid var(--border);
-  background: var(--raised);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-mono);
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--text-secondary);
-}
+/* Loading indicator */
+.loading { font-family: var(--font-mono); font-size: 9px; color: var(--text-dim); text-align: center; padding: 20px; letter-spacing: 0.1em; }
 
 /* ── BOTTOM NAV ────────────────────────────────── */
-.bnav {
-  display: flex;
-  justify-content: center;
-  gap: 60px;
-  padding: 10px 0 20px;
-  border-top: 1px solid var(--border);
-  flex-shrink: 0;
-  margin-top: auto;
-}
-
-.bnav-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-  cursor: pointer;
-  padding: 4px 8px;
-  border-radius: var(--radius-btn);
-  transition: opacity 0.15s;
-}
+.bnav { display: flex; justify-content: center; gap: 60px; padding: 10px 0 20px; border-top: 1px solid var(--border); flex-shrink: 0; margin-top: auto; }
+.bnav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; padding: 4px 8px; border-radius: var(--radius-btn); }
 .bnav-item:active { opacity: 0.7; }
-
-.bnav-label {
-  font-family: var(--font-body);
-  font-size: 9px;
-  letter-spacing: 0.05em;
-  color: var(--text-dim);
-}
+.bnav-label { font-family: var(--font-body); font-size: 9px; letter-spacing: 0.05em; color: var(--text-dim); }
 .bnav-item.active .bnav-label { color: var(--accent); }
-.bnav-item.stats-active .bnav-label { color: var(--correct-text); }
+.bnav-item.stats-tab.active .bnav-label { color: var(--correct-text); }
+
+/* Nav icon colours */
+.bnav-item.active svg { color: var(--accent); }
+.bnav-item:not(.active) svg { color: var(--text-dim); }
 
 /* ── STATS SCREEN ──────────────────────────────── */
-.stats-cards {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 7px;
-  flex-shrink: 0;
-}
-
-.stat-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-btn);
-  padding: 10px 6px;
-  text-align: center;
-}
-.stat-card.accent-border {
-  border-color: rgba(200,85,61,0.3);
-}
-
-.stat-value {
-  font-family: var(--font-brand);
-  font-size: 22px;
-  font-weight: 900;
-  color: var(--text-primary);
-  line-height: 1;
-}
-.stat-value.accent { color: var(--accent); }
-
-.stat-label {
-  font-family: var(--font-mono);
-  font-size: 6px;
-  color: var(--text-muted);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  margin-top: 4px;
-}
-
-/* Distribution chart */
-.dist-wrap {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.dist-row {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-}
-
-.dist-label {
-  font-family: var(--font-mono);
-  font-size: 9px;
-  color: var(--text-muted);
-  width: 12px;
-  text-align: right;
-  flex-shrink: 0;
-}
-.dist-label.fail { color: var(--accent); }
-
-.dist-bar-wrap {
-  flex: 1;
-  height: 18px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 3px;
-  overflow: hidden;
-}
-
-.dist-bar {
-  height: 100%;
-  display: flex;
-  align-items: center;
-  padding-left: 5px;
-  min-width: 24px;
-  transition: width 0.4s ease;
-}
-
-.dist-bar-num {
-  font-family: var(--font-mono);
-  font-size: 7px;
-  font-weight: 700;
-}
-
-/* Best opener */
-.opener-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-card);
-  padding: 10px 12px;
-  flex-shrink: 0;
-}
-
-.opener-tiles {
-  display: flex;
-  gap: 4px;
-  justify-content: center;
-  margin: 8px 0 6px;
-}
-
-.opener-tile {
-  width: 34px;
-  height: 34px;
-  border-radius: 6px;
-  border: 1.5px solid var(--border);
-  background: var(--raised);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-mono);
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--text-ui);
-}
-
-.opener-note {
-  font-family: var(--font-mono);
-  font-size: 7px;
-  color: var(--text-muted);
-  text-align: center;
-  letter-spacing: 0.08em;
-}
-
-/* No stats state */
-.no-stats {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  flex: 1;
-  gap: 8px;
-  text-align: center;
-}
-.no-stats-heading {
-  font-family: var(--font-brand);
-  font-size: 15px;
-  font-weight: 700;
-  color: #C8C6E0;
-}
-.no-stats-body {
-  font-family: var(--font-body);
-  font-size: 11px;
-  color: var(--text-ui);
-  max-width: 200px;
-  line-height: 1.5;
-}
-
-/* ── SCROLLABLE STATS CONTENT ──────────────────── */
-.stats-scroll {
-  flex: 1;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 13px;
-  padding-bottom: 4px;
-}
+.stats-scroll { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding-bottom: 4px; }
 .stats-scroll::-webkit-scrollbar { width: 3px; }
 .stats-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
-/* ── RESPONSIVE: full-width on small screens ───── */
+.stats-cards { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 7px; flex-shrink: 0; }
+.stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-btn); padding: 10px 6px; text-align: center; }
+.stat-card.accent-border { border-color: rgba(200,85,61,0.3); }
+.stat-value { font-family: var(--font-brand); font-size: 22px; font-weight: 900; color: var(--text-primary); line-height: 1; }
+.stat-value.accent { color: var(--accent); }
+.stat-label { font-family: var(--font-mono); font-size: 6px; color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 4px; }
+
+.dist-wrap { display: flex; flex-direction: column; gap: 5px; }
+.dist-row { display: flex; align-items: center; gap: 7px; }
+.dist-label { font-family: var(--font-mono); font-size: 9px; color: var(--text-muted); width: 12px; text-align: right; flex-shrink: 0; }
+.dist-label.fail { color: var(--accent); }
+.dist-bar-wrap { flex: 1; height: 18px; background: var(--surface); border: 1px solid var(--border); border-radius: 3px; overflow: hidden; }
+.dist-bar { height: 100%; display: flex; align-items: center; padding-left: 5px; min-width: 0; transition: width 0.4s ease; }
+.dist-bar-num { font-family: var(--font-mono); font-size: 7px; font-weight: 700; }
+
+.opener-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-card); padding: 10px 12px; flex-shrink: 0; }
+.opener-tiles { display: flex; gap: 4px; justify-content: center; margin: 8px 0 6px; }
+.opener-tile { width: 34px; height: 34px; border-radius: 6px; border: 1.5px solid var(--border); background: var(--raised); display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 14px; font-weight: 700; color: var(--text-ui); }
+.opener-note { font-family: var(--font-mono); font-size: 7px; color: var(--text-muted); text-align: center; letter-spacing: 0.08em; }
+
+.no-stats { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; gap: 8px; text-align: center; }
+.no-stats-heading { font-family: var(--font-brand); font-size: 15px; font-weight: 700; color: #C8C6E0; }
+.no-stats-body { font-family: var(--font-body); font-size: 11px; color: var(--text-ui); max-width: 200px; line-height: 1.5; }
+
+/* ── RESPONSIVE ────────────────────────────────── */
 @media (max-width: 420px) {
   body { padding: 0; align-items: flex-start; }
-  .phone {
-    width: 100vw;
-    min-height: 100vh;
-    border-radius: 0;
-    border: none;
-    box-shadow: none;
-  }
+  .phone { width: 100vw; min-height: 100vh; border-radius: 0; border: none; box-shadow: none; }
 }
 </style>
 </head>
@@ -702,7 +264,6 @@ body {
     <!-- ══ SOLVE SCREEN ══════════════════════════ -->
     <div class="screen active" id="screen-solve">
 
-      <!-- Header -->
       <div class="app-header">
         <div>
           <div class="app-logo">crack<em>le</em></div>
@@ -710,35 +271,22 @@ body {
         </div>
       </div>
 
-      <!-- Letter input -->
       <div>
         <div class="section-label">Enter a guess word</div>
-        <div class="letter-input-wrap">
-          <input
-            class="letter-input"
-            id="word-input"
-            type="text"
-            maxlength="5"
-            placeholder="Type 5 letters…"
-            autocomplete="off"
-            autocorrect="off"
-            autocapitalize="characters"
-            spellcheck="false"
-          >
-          <button class="add-btn" id="add-btn">Add</button>
-          <button class="clear-btn" id="clear-btn">Reset</button>
+        <div class="input-row">
+          <input class="letter-input" id="word-input" type="text" maxlength="5"
+            placeholder="5 letters, then Add"
+            autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false">
+          <button class="btn-add" id="add-btn">Add</button>
+          <button class="btn-reset" id="clear-btn">Reset</button>
         </div>
       </div>
 
-      <!-- Guess grid -->
       <div class="guess-grid-wrap">
-        <div class="section-label">Your guesses — tap a tile to change its colour</div>
-        <div class="guess-grid" id="guess-grid">
-          <!-- Rows injected by JS -->
-        </div>
+        <div class="section-label">Tap a tile to cycle: grey → yellow → green</div>
+        <div class="guess-grid" id="guess-grid"></div>
       </div>
 
-      <!-- Constraints -->
       <div class="constraints-box">
         <div class="section-label" style="margin-bottom:0;">Active constraints</div>
         <div class="pills" id="pills-wrap">
@@ -746,39 +294,20 @@ body {
         </div>
       </div>
 
-      <!-- Suggestions -->
       <div class="sugg-section">
         <div class="sugg-header">
           <div class="section-label" style="margin-bottom:0;">Suggestions</div>
           <div class="sugg-count" id="sugg-count"></div>
         </div>
         <div class="sugg-list" id="sugg-list">
-          <!-- Empty state shown on first load -->
-          <div class="empty-state" id="empty-state">
-            <div class="empty-heading">Enter your<br>first guess above</div>
-            <div class="empty-body">Type a 5-letter word, press Add, then tap each tile to mark it green, yellow or grey.</div>
-            <div style="margin-top:6px;">
-              <div class="starter-label">Try starting with</div>
-              <div class="starter-tiles">
-                <div class="starter-tile">S</div>
-                <div class="starter-tile">T</div>
-                <div class="starter-tile">A</div>
-                <div class="starter-tile">R</div>
-                <div class="starter-tile">E</div>
-              </div>
-            </div>
-          </div>
+          <div class="loading" id="loading-msg">Loading word list…</div>
         </div>
       </div>
 
     </div>
-    <!-- ══ END SOLVE SCREEN ══════════════════════ -->
-
 
     <!-- ══ STATS SCREEN ══════════════════════════ -->
     <div class="screen" id="screen-stats">
-
-      <!-- Header -->
       <div class="app-header">
         <div>
           <div class="app-logo">crack<em>le</em></div>
@@ -786,14 +315,8 @@ body {
         </div>
         <div class="today-chip" id="today-chip">Today ✓</div>
       </div>
-
-      <div class="stats-scroll" id="stats-content">
-        <!-- Injected by JS -->
-      </div>
-
+      <div class="stats-scroll" id="stats-content"></div>
     </div>
-    <!-- ══ END STATS SCREEN ══════════════════════ -->
-
 
     <!-- ══ BOTTOM NAV ════════════════════════════ -->
     <div class="bnav">
@@ -805,141 +328,185 @@ body {
         </svg>
         <div class="bnav-label">Solve</div>
       </div>
-      <div class="bnav-item" id="nav-stats" onclick="showScreen('stats')">
+      <div class="bnav-item stats-tab" id="nav-stats" onclick="showScreen('stats')">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-          <rect x="2" y="16" width="3.5" height="6" rx="1" fill="#376b4a"/>
-          <rect x="7" y="11" width="3.5" height="11" rx="1" fill="#7a6020"/>
-          <rect x="12" y="6" width="3.5" height="16" rx="1" fill="#8ed9a8"/>
-          <rect x="17" y="13" width="3.5" height="9" rx="1" fill="#e8c060"/>
+          <rect x="2"  y="16" width="3.5" height="6"  rx="1" fill="#376b4a"/>
+          <rect x="7"  y="11" width="3.5" height="11" rx="1" fill="#7a6020"/>
+          <rect x="12" y="6"  width="3.5" height="16" rx="1" fill="#8ed9a8"/>
+          <rect x="17" y="13" width="3.5" height="9"  rx="1" fill="#e8c060"/>
           <line x1="1" y1="22.5" x2="23" y2="22.5" stroke="#252538" stroke-width="1.2" stroke-linecap="round"/>
         </svg>
         <div class="bnav-label">Stats</div>
       </div>
     </div>
 
-  </div><!-- /phone-inner -->
-</div><!-- /phone -->
+  </div>
+</div>
 
+<script>
+// ═══════════════════════════════════════════════════
+// WORD LIST — loaded from remote at startup
+// ═══════════════════════════════════════════════════
+const WORD_LIST_URL = 'https://raw.githubusercontent.com/tabatkins/wordle-list/main/words';
+let WORDS = [];
+let appReady = false;
 
-<script type="module">
-import { loadWordList } from './words.js';
-import { filterWords }  from './filter.js';
-import { getTopSuggestions } from './ranker.js';
-
-// ── STATE ────────────────────────────────────────
-// Each guess: { word: 'crane', states: ['absent','correct','absent','absent','present'] }
-let guesses   = [];
-let wordList  = [];
-const MAX_ROWS = 6;
-
-// Tile state cycle: absent → present → correct → absent
-const STATE_CYCLE = ['absent', 'present', 'correct'];
-
-// ── INIT ─────────────────────────────────────────
-async function init() {
+async function loadWords() {
   try {
-    wordList = await loadWordList();
-    renderGrid();
-    renderSuggestions();
+    const res  = await fetch(WORD_LIST_URL);
+    const text = await res.text();
+    WORDS = text.split('\n')
+      .map(w => w.trim().toLowerCase())
+      .filter(w => w.length === 5 && /^[a-z]+$/.test(w));
+    appReady = true;
+    console.log('Word list loaded:', WORDS.length, 'words');
   } catch (e) {
-    document.getElementById('sugg-count').textContent = 'Error loading word list';
-    console.error(e);
+    console.error('Failed to load word list:', e);
+    document.getElementById('loading-msg').textContent = 'Could not load word list. Check your connection.';
   }
 }
 
-// ── SCREEN SWITCHING ─────────────────────────────
+// ═══════════════════════════════════════════════════
+// FILTER ENGINE
+// ═══════════════════════════════════════════════════
+function filterWords(constraints) {
+  const { greens = [null,null,null,null,null], yellows = {}, greys = [] } = constraints;
+  return WORDS.filter(word => {
+    // Green: must match exact position
+    for (let i = 0; i < 5; i++) {
+      if (greens[i] && word[i] !== greens[i]) return false;
+    }
+    // Yellow: must contain letter, not at excluded positions
+    for (const [letter, excludedPositions] of Object.entries(yellows)) {
+      if (!word.includes(letter)) return false;
+      for (const pos of excludedPositions) {
+        if (word[pos] === letter) return false;
+      }
+    }
+    // Grey: must not contain letter (unless it's also green or yellow — duplicate handling)
+    for (const letter of greys) {
+      const isGreen  = greens.includes(letter);
+      const isYellow = letter in yellows;
+      if (!isGreen && !isYellow && word.includes(letter)) return false;
+    }
+    return true;
+  });
+}
+
+// ═══════════════════════════════════════════════════
+// RANKER
+// ═══════════════════════════════════════════════════
+function rankWords(validWords, n = 20) {
+  if (validWords.length === 0) return [];
+  const usePositional = validWords.length <= 50;
+  let scored;
+  if (usePositional) {
+    // Positional frequency
+    const pos = [{},{},{},{},{}];
+    for (const w of validWords) {
+      for (let i = 0; i < 5; i++) pos[i][w[i]] = (pos[i][w[i]] || 0) + 1;
+    }
+    scored = validWords.map(w => ({
+      word: w,
+      score: w.split('').reduce((s, l, i) => s + (pos[i][l] || 0), 0)
+    }));
+  } else {
+    // Overall frequency
+    const freq = {};
+    for (const w of validWords) {
+      for (const l of new Set(w)) freq[l] = (freq[l] || 0) + 1;
+    }
+    scored = validWords.map(w => ({
+      word: w,
+      score: [...new Set(w)].reduce((s, l) => s + (freq[l] || 0), 0)
+    }));
+  }
+  return scored.sort((a, b) => b.score - a.score).slice(0, n);
+}
+
+// ═══════════════════════════════════════════════════
+// APP STATE
+// ═══════════════════════════════════════════════════
+let guesses = []; // [{ word: 'crane', states: ['absent','correct',...] }]
+const MAX_ROWS = 6;
+const STATE_CYCLE = ['absent', 'present', 'correct'];
+
+// ═══════════════════════════════════════════════════
+// SCREEN SWITCHING
+// ═══════════════════════════════════════════════════
 window.showScreen = function(name) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('screen-' + name).classList.add('active');
-
-  document.querySelectorAll('.bnav-item').forEach(i => {
-    i.classList.remove('active', 'stats-active');
-  });
-
-  if (name === 'solve') {
-    document.getElementById('nav-solve').classList.add('active');
-  } else if (name === 'stats') {
-    document.getElementById('nav-stats').classList.add('stats-active');
-    renderStats();
-  }
+  document.querySelectorAll('.bnav-item').forEach(i => i.classList.remove('active'));
+  document.getElementById('nav-' + name).classList.add('active');
+  if (name === 'stats') renderStats();
 };
 
-// ── GRID RENDERING ───────────────────────────────
+// ═══════════════════════════════════════════════════
+// GRID
+// ═══════════════════════════════════════════════════
 function renderGrid() {
   const grid = document.getElementById('guess-grid');
   grid.innerHTML = '';
-
   for (let r = 0; r < MAX_ROWS; r++) {
     const row = document.createElement('div');
     row.className = 'guess-row';
-    row.dataset.row = r;
-
-    // Row number
     const num = document.createElement('span');
     num.className = 'row-num';
     num.textContent = r + 1;
     row.appendChild(num);
-
     if (r < guesses.length) {
-      // Filled row
-      const guess = guesses[r];
+      const g = guesses[r];
       for (let c = 0; c < 5; c++) {
         const tile = document.createElement('div');
-        tile.className = 'tile ' + guess.states[c];
-        tile.textContent = guess.word[c].toUpperCase();
-        tile.dataset.row = r;
-        tile.dataset.col = c;
-        tile.addEventListener('click', () => cycleTile(r, c));
+        tile.className = 'tile clickable ' + g.states[c];
+        tile.textContent = g.word[c].toUpperCase();
+        tile.addEventListener('click', () => { cycleTile(r, c); });
         row.appendChild(tile);
       }
     } else {
-      // Empty row
       for (let c = 0; c < 5; c++) {
         const tile = document.createElement('div');
         tile.className = 'tile';
         row.appendChild(tile);
       }
     }
-
     grid.appendChild(row);
   }
 }
 
-// ── TILE CYCLE ───────────────────────────────────
-function cycleTile(rowIdx, colIdx) {
-  const guess = guesses[rowIdx];
-  if (!guess) return;
-  const current = guess.states[colIdx];
-  const nextIdx = (STATE_CYCLE.indexOf(current) + 1) % STATE_CYCLE.length;
-  guess.states[colIdx] = STATE_CYCLE[nextIdx];
+// ═══════════════════════════════════════════════════
+// TILE CYCLE — grey → yellow → green → grey
+// ═══════════════════════════════════════════════════
+function cycleTile(r, c) {
+  const g = guesses[r];
+  if (!g) return;
+  const idx = STATE_CYCLE.indexOf(g.states[c]);
+  g.states[c] = STATE_CYCLE[(idx + 1) % STATE_CYCLE.length];
   renderGrid();
   renderConstraints();
   renderSuggestions();
 }
 
-// ── ADD GUESS ────────────────────────────────────
+// ═══════════════════════════════════════════════════
+// ADD GUESS
+// ═══════════════════════════════════════════════════
 document.getElementById('add-btn').addEventListener('click', addGuess);
 document.getElementById('word-input').addEventListener('keydown', e => {
   if (e.key === 'Enter') addGuess();
 });
 
 function addGuess() {
+  if (!appReady) return;
   if (guesses.length >= MAX_ROWS) return;
-
   const input = document.getElementById('word-input');
-  const word = input.value.trim().toLowerCase();
-
+  const word  = input.value.trim().toLowerCase();
   if (word.length !== 5 || !/^[a-z]+$/.test(word)) {
-    input.style.borderColor = 'var(--accent)';
-    setTimeout(() => input.style.borderColor = '', 600);
+    input.classList.add('error');
+    setTimeout(() => input.classList.remove('error'), 600);
     return;
   }
-
-  guesses.push({
-    word,
-    states: ['absent', 'absent', 'absent', 'absent', 'absent']
-  });
-
+  guesses.push({ word, states: ['absent','absent','absent','absent','absent'] });
   input.value = '';
   input.focus();
   renderGrid();
@@ -947,7 +514,9 @@ function addGuess() {
   renderSuggestions();
 }
 
-// ── RESET ────────────────────────────────────────
+// ═══════════════════════════════════════════════════
+// RESET
+// ═══════════════════════════════════════════════════
 document.getElementById('clear-btn').addEventListener('click', () => {
   guesses = [];
   document.getElementById('word-input').value = '';
@@ -956,17 +525,17 @@ document.getElementById('clear-btn').addEventListener('click', () => {
   renderSuggestions();
 });
 
-// ── BUILD CONSTRAINTS FROM GUESSES ───────────────
+// ═══════════════════════════════════════════════════
+// BUILD CONSTRAINTS
+// ═══════════════════════════════════════════════════
 function buildConstraints() {
-  const greens  = [null, null, null, null, null];
+  const greens  = [null,null,null,null,null];
   const yellows = {};
   const greys   = [];
-
-  for (const guess of guesses) {
+  for (const g of guesses) {
     for (let i = 0; i < 5; i++) {
-      const letter = guess.word[i];
-      const state  = guess.states[i];
-
+      const letter = g.word[i];
+      const state  = g.states[i];
       if (state === 'correct') {
         greens[i] = letter;
       } else if (state === 'present') {
@@ -977,116 +546,112 @@ function buildConstraints() {
       }
     }
   }
-
   return { greens, yellows, greys };
 }
 
-// ── RENDER CONSTRAINT PILLS ──────────────────────
+// ═══════════════════════════════════════════════════
+// RENDER CONSTRAINTS
+// ═══════════════════════════════════════════════════
 function renderConstraints() {
   const wrap = document.getElementById('pills-wrap');
   wrap.innerHTML = '';
-
   if (guesses.length === 0) {
     wrap.innerHTML = '<span class="no-constraints">No constraints yet</span>';
     return;
   }
-
   const { greens, yellows, greys } = buildConstraints();
-
-  // Green pattern pill
   const hasGreens = greens.some(g => g !== null);
   if (hasGreens) {
-    const pattern = greens.map(g => g ? g.toUpperCase() : '_').join('');
-    const pill = document.createElement('span');
-    pill.className = 'pill p-correct';
-    pill.textContent = pattern;
-    wrap.appendChild(pill);
+    const p = document.createElement('span');
+    p.className = 'pill p-correct';
+    p.textContent = greens.map(g => g ? g.toUpperCase() : '_').join('');
+    wrap.appendChild(p);
   }
-
-  // Yellow pills
   for (const [letter, positions] of Object.entries(yellows)) {
-    const pill = document.createElement('span');
-    pill.className = 'pill p-present';
-    pill.textContent = letter.toUpperCase() + ' ≠' + positions.map(p => p+1).join(',');
-    wrap.appendChild(pill);
+    const p = document.createElement('span');
+    p.className = 'pill p-present';
+    p.textContent = letter.toUpperCase() + ' ≠' + positions.map(p => p+1).join(',');
+    wrap.appendChild(p);
   }
-
-  // Grey pills
   for (const letter of greys) {
-    const pill = document.createElement('span');
-    pill.className = 'pill p-absent';
-    pill.textContent = letter.toUpperCase();
-    wrap.appendChild(pill);
+    const p = document.createElement('span');
+    p.className = 'pill p-absent';
+    p.textContent = letter.toUpperCase();
+    wrap.appendChild(p);
   }
 }
 
-// ── RENDER SUGGESTIONS ───────────────────────────
+// ═══════════════════════════════════════════════════
+// RENDER SUGGESTIONS
+// ═══════════════════════════════════════════════════
 function renderSuggestions() {
-  const list      = document.getElementById('sugg-list');
-  const countEl   = document.getElementById('sugg-count');
-  const emptyEl   = document.getElementById('empty-state');
+  const list    = document.getElementById('sugg-list');
+  const countEl = document.getElementById('sugg-count');
 
-  if (guesses.length === 0) {
-    list.innerHTML = '';
-    list.appendChild(emptyEl);
-    emptyEl.style.display = 'flex';
-    countEl.textContent = '';
+  if (!appReady) {
+    list.innerHTML = '<div class="loading">Loading word list…</div>';
     return;
   }
 
-  emptyEl.style.display = 'none';
+  if (guesses.length === 0) {
+    countEl.textContent = '';
+    list.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-heading">Enter your<br>first guess above</div>
+        <div class="empty-body">Type a word, press Add, then tap each tile to mark it green, yellow or grey.</div>
+        <div style="margin-top:8px;">
+          <div class="starter-label">Try starting with</div>
+          <div class="starter-tiles">
+            <div class="starter-tile">S</div>
+            <div class="starter-tile">T</div>
+            <div class="starter-tile">A</div>
+            <div class="starter-tile">R</div>
+            <div class="starter-tile">E</div>
+          </div>
+        </div>
+      </div>`;
+    return;
+  }
 
   const constraints = buildConstraints();
   const valid       = filterWords(constraints);
-  const top         = getTopSuggestions(valid, 20);
+  const top         = rankWords(valid, 20);
+  const maxScore    = top.length > 0 ? top[0].score : 1;
 
-  // Word count
+  // Word count text
   if (valid.length === 0) {
-    countEl.textContent = 'No valid words — check inputs';
+    countEl.textContent = 'No matches — check colours';
   } else if (valid.length === 1) {
     countEl.textContent = '1 word remains';
   } else {
     countEl.textContent = valid.length + ' words remain';
   }
 
-  // Normalise scores for bar widths
-  const maxScore = top.length > 0 ? top[0].score : 1;
-
   list.innerHTML = '';
 
   if (valid.length === 0) {
-    const msg = document.createElement('div');
-    msg.style.cssText = 'padding:16px;text-align:center;font-family:var(--font-body);font-size:12px;color:var(--text-muted);font-style:italic;';
-    msg.textContent = 'No words match these constraints. Try adjusting the tile colours.';
-    list.appendChild(msg);
+    list.innerHTML = '<div style="padding:16px;text-align:center;font-family:var(--font-body);font-size:12px;color:var(--text-muted);font-style:italic;">No words match. Try adjusting the tile colours.</div>';
     return;
   }
 
   top.forEach((item, idx) => {
     const isBest = idx === 0;
-    const barPct  = Math.round((item.score / maxScore) * 100);
-    const scoreDisplay = (item.score / 1000).toFixed(1); // normalise to ~0–9.9
-
+    const pct    = Math.round((item.score / maxScore) * 100);
+    const scoreDisplay = (item.score / maxScore * 9.9).toFixed(1);
     const el = document.createElement('div');
     el.className = 'sugg-item' + (isBest ? ' best' : '');
-
     el.innerHTML = `
-      <div class="sugg-left">
+      <div style="display:flex;align-items:baseline;">
         <span class="sugg-word${isBest ? ' best' : ''}">${item.word.toUpperCase()}</span>
         ${isBest ? '<span class="sugg-badge">★ best</span>' : ''}
       </div>
       <div class="sugg-right">
-        <div class="s-bar">
-          <div class="s-fill" style="width:${barPct}%;background:${isBest ? 'var(--accent)' : '#686884'};"></div>
-        </div>
+        <div class="s-bar"><div class="s-fill" style="width:${pct}%;background:${isBest ? 'var(--accent)' : '#686884'};"></div></div>
         <div class="s-num">${scoreDisplay}</div>
-      </div>
-    `;
-
+      </div>`;
     list.appendChild(el);
   });
 
-  // If more than 20 results, show a count
   if (valid.length > 20) {
     const more = document.createElement('div');
     more.style.cssText = 'padding:8px;text-align:center;font-family:var(--font-mono);font-size:8px;color:var(--text-dim);';
@@ -1095,184 +660,161 @@ function renderSuggestions() {
   }
 }
 
-// ── STATS ────────────────────────────────────────
+// ═══════════════════════════════════════════════════
+// STATS
+// ═══════════════════════════════════════════════════
 function loadStats() {
-  try {
-    return JSON.parse(localStorage.getItem('crackle-stats') || '[]');
-  } catch { return []; }
-}
-
-function saveSession(solved, guessCount, opener) {
-  const sessions = loadStats();
-  sessions.push({
-    date: new Date().toISOString().slice(0,10),
-    solved,
-    guesses: guessCount,
-    opener
-  });
-  localStorage.setItem('crackle-stats', JSON.stringify(sessions));
+  try { return JSON.parse(localStorage.getItem('crackle-stats') || '[]'); }
+  catch { return []; }
 }
 
 function renderStats() {
-  const content = document.getElementById('stats-content');
+  const content  = document.getElementById('stats-content');
   const sessions = loadStats();
-
-  // Today chip
-  const today = new Date().toISOString().slice(0,10);
-  const playedToday = sessions.some(s => s.date === today);
-  const chip = document.getElementById('today-chip');
-  chip.classList.toggle('visible', playedToday);
+  const today    = new Date().toISOString().slice(0,10);
+  document.getElementById('today-chip').classList.toggle('visible', sessions.some(s => s.date === today));
 
   if (sessions.length === 0) {
     content.innerHTML = `
       <div class="no-stats">
         <div class="no-stats-heading">No stats yet</div>
-        <div class="no-stats-body">Use Crackle to solve a Wordle, then log the result to see your stats build up here.</div>
+        <div class="no-stats-body">Use Crackle to solve Wordle, then log your result here to track your stats.</div>
       </div>
-    `;
+      ${logFormHTML()}`;
+    attachLogHandlers();
     return;
   }
 
-  // Calculate stats
-  const played   = sessions.length;
-  const wins     = sessions.filter(s => s.solved).length;
-  const winRate  = Math.round((wins / played) * 100);
+  const played  = sessions.length;
+  const wins    = sessions.filter(s => s.solved).length;
+  const winRate = Math.round((wins / played) * 100);
 
-  // Streak — consecutive days ending today or yesterday
-  const sortedDates = [...new Set(sessions.filter(s=>s.solved).map(s=>s.date))].sort();
-  let streak = 0;
-  let checkDate = new Date();
-  for (let i = sortedDates.length - 1; i >= 0; i--) {
-    const d = checkDate.toISOString().slice(0,10);
-    if (sortedDates[i] === d) {
+  // Streak
+  const winDates = [...new Set(sessions.filter(s=>s.solved).map(s=>s.date))].sort();
+  let streak = 0, check = new Date();
+  for (let i = winDates.length - 1; i >= 0; i--) {
+    if (winDates[i] === check.toISOString().slice(0,10)) {
       streak++;
-      checkDate.setDate(checkDate.getDate() - 1);
+      check.setDate(check.getDate() - 1);
     } else break;
   }
 
-  // Guess distribution (wins only, 1–6 guesses)
-  const dist = {2:0, 3:0, 4:0, 5:0, 6:0, X:0};
+  // Distribution
+  const dist = {2:0,3:0,4:0,5:0,6:0,X:0};
   sessions.forEach(s => {
     if (s.solved && s.guesses >= 2 && s.guesses <= 6) dist[s.guesses]++;
     else if (!s.solved) dist['X']++;
   });
   const maxDist = Math.max(...Object.values(dist), 1);
 
-  // Best opener
-  const openerCounts = {};
-  sessions.forEach(s => {
-    if (s.opener) {
-      if (!openerCounts[s.opener]) openerCounts[s.opener] = { count:0, totalGuesses:0 };
-      openerCounts[s.opener].count++;
-      openerCounts[s.opener].totalGuesses += s.guesses || 0;
-    }
-  });
-  const bestOpener = Object.entries(openerCounts)
-    .sort((a,b) => b[1].count - a[1].count)[0];
-
-  // Dist bar colours per row
-  const distColours = {
-    2: { bg:'#243d2e', text:'#8ed9a8' },
-    3: { bg:'#3d3010', text:'#e8c060' },
-    4: { bg:'#376b4a', text:'#0f0f1c' },
-    5: { bg:'#3d3010', text:'#e8c060' },
-    6: { bg:'#243d2e', text:'#8ed9a8' },
-    X: { bg:'#3d1a14', text:'#c8553d' }
+  const colours = {
+    2:{bg:'#243d2e',text:'#8ed9a8'}, 3:{bg:'#3d3010',text:'#e8c060'},
+    4:{bg:'#376b4a',text:'#0f0f1c'}, 5:{bg:'#3d3010',text:'#e8c060'},
+    6:{bg:'#243d2e',text:'#8ed9a8'}, X:{bg:'#3d1a14',text:'#c8553d'}
   };
 
   const distRows = [2,3,4,5,6,'X'].map(key => {
     const count = dist[key] || 0;
     const pct   = Math.round((count / maxDist) * 100);
-    const col   = distColours[key];
-    const isFail = key === 'X';
-    return `
-      <div class="dist-row">
-        <div class="dist-label${isFail ? ' fail' : ''}">${key}</div>
-        <div class="dist-bar-wrap">
-          <div class="dist-bar" style="width:${Math.max(pct,count>0?8:0)}%;background:${col.bg};">
-            <span class="dist-bar-num" style="color:${col.text};">${count > 0 ? count : ''}</span>
-          </div>
+    const col   = colours[key];
+    return `<div class="dist-row">
+      <div class="dist-label${key==='X'?' fail':''}">${key}</div>
+      <div class="dist-bar-wrap">
+        <div class="dist-bar" style="width:${Math.max(pct, count>0?8:0)}%;background:${col.bg};">
+          <span class="dist-bar-num" style="color:${col.text};">${count>0?count:''}</span>
         </div>
-      </div>`;
+      </div>
+    </div>`;
   }).join('');
 
-  // Best opener tiles
+  // Best opener
+  const openerMap = {};
+  sessions.forEach(s => {
+    if (s.opener) {
+      if (!openerMap[s.opener]) openerMap[s.opener] = {count:0, total:0};
+      openerMap[s.opener].count++;
+      openerMap[s.opener].total += s.guesses || 0;
+    }
+  });
+  const best = Object.entries(openerMap).sort((a,b)=>b[1].count-a[1].count)[0];
   let openerHTML = '';
-  if (bestOpener) {
-    const word = bestOpener[0];
-    const avg  = (bestOpener[1].totalGuesses / bestOpener[1].count).toFixed(1);
-    const tiles = word.split('').map(l =>
-      `<div class="opener-tile">${l.toUpperCase()}</div>`
-    ).join('');
-    openerHTML = `
-      <div class="opener-card">
-        <div class="section-label">Best Opener</div>
-        <div class="opener-tiles">${tiles}</div>
-        <div class="opener-note">avg ${avg} guesses when used</div>
-      </div>`;
+  if (best) {
+    const avg   = (best[1].total / best[1].count).toFixed(1);
+    const tiles = best[0].split('').map(l=>`<div class="opener-tile">${l.toUpperCase()}</div>`).join('');
+    openerHTML = `<div class="opener-card">
+      <div class="section-label">Best Opener</div>
+      <div class="opener-tiles">${tiles}</div>
+      <div class="opener-note">avg ${avg} guesses when used</div>
+    </div>`;
   }
 
   content.innerHTML = `
     <div class="stats-cards">
-      <div class="stat-card accent-border">
-        <div class="stat-value accent">${played}</div>
-        <div class="stat-label">Played</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value">${winRate}%</div>
-        <div class="stat-label">Win Rate</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value">${streak}</div>
-        <div class="stat-label">Streak</div>
-      </div>
+      <div class="stat-card accent-border"><div class="stat-value accent">${played}</div><div class="stat-label">Played</div></div>
+      <div class="stat-card"><div class="stat-value">${winRate}%</div><div class="stat-label">Win Rate</div></div>
+      <div class="stat-card"><div class="stat-value">${streak}</div><div class="stat-label">Streak</div></div>
     </div>
-
     <div>
       <div class="section-label">Guess Distribution</div>
       <div class="dist-wrap">${distRows}</div>
     </div>
-
     ${openerHTML}
+    ${logFormHTML()}`;
 
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-card);padding:12px;">
-      <div class="section-label">Log today's result</div>
-      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-        <input id="log-opener" type="text" maxlength="5" placeholder="Opener word"
-          style="flex:1;min-width:90px;background:var(--raised);border:1px solid var(--border);border-radius:var(--radius-btn);padding:6px 10px;font-family:var(--font-mono);font-size:12px;color:var(--text-primary);outline:none;text-transform:uppercase;letter-spacing:0.15em;"
-          autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false">
-        <input id="log-guesses" type="number" min="1" max="6" placeholder="Guesses"
-          style="width:70px;background:var(--raised);border:1px solid var(--border);border-radius:var(--radius-btn);padding:6px 10px;font-family:var(--font-mono);font-size:12px;color:var(--text-primary);outline:none;text-align:center;">
-        <button id="log-win" style="background:var(--correct-bg);border:1px solid var(--correct-border);border-radius:var(--radius-btn);padding:6px 12px;font-family:var(--font-mono);font-size:10px;color:var(--correct-text);cursor:pointer;font-weight:700;">✓ Won</button>
-        <button id="log-loss" style="background:#3d1a14;border:1px solid #6a2a1a;border-radius:var(--radius-btn);padding:6px 12px;font-family:var(--font-mono);font-size:10px;color:var(--accent);cursor:pointer;font-weight:700;">✗ Lost</button>
-      </div>
+  attachLogHandlers();
+}
+
+function logFormHTML() {
+  return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-card);padding:12px;">
+    <div class="section-label">Log today's result</div>
+    <div style="display:flex;gap:7px;flex-wrap:wrap;align-items:center;">
+      <input id="log-opener" type="text" maxlength="5" placeholder="Opener word"
+        style="flex:1;min-width:90px;background:var(--raised);border:1px solid var(--border);border-radius:var(--radius-btn);padding:7px 10px;font-family:var(--font-mono);font-size:12px;color:var(--text-primary);outline:none;text-transform:uppercase;letter-spacing:0.15em;"
+        autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false">
+      <input id="log-guesses" type="number" min="1" max="6" placeholder="#"
+        style="width:52px;background:var(--raised);border:1px solid var(--border);border-radius:var(--radius-btn);padding:7px 8px;font-family:var(--font-mono);font-size:12px;color:var(--text-primary);outline:none;text-align:center;">
+      <button id="log-win" style="background:var(--correct-bg);border:1px solid var(--correct-border);border-radius:var(--radius-btn);padding:7px 12px;font-family:var(--font-mono);font-size:10px;color:var(--correct-text);cursor:pointer;font-weight:700;">✓ Won</button>
+      <button id="log-loss" style="background:#3d1a14;border:1px solid #6a2a1a;border-radius:var(--radius-btn);padding:7px 12px;font-family:var(--font-mono);font-size:10px;color:var(--accent);cursor:pointer;font-weight:700;">✗ Lost</button>
     </div>
-  `;
+  </div>`;
+}
 
-  // Log result handlers
-  document.getElementById('log-win').addEventListener('click', () => logResult(true));
+function attachLogHandlers() {
+  document.getElementById('log-win').addEventListener('click',  () => logResult(true));
   document.getElementById('log-loss').addEventListener('click', () => logResult(false));
 }
 
 function logResult(solved) {
-  const opener  = (document.getElementById('log-opener').value || '').trim().toLowerCase();
-  const guesses = parseInt(document.getElementById('log-guesses').value) || 0;
+  const openerEl  = document.getElementById('log-opener');
+  const guessesEl = document.getElementById('log-guesses');
+  const opener    = openerEl.value.trim().toLowerCase();
+  const guesses   = parseInt(guessesEl.value) || 0;
+
   if (!opener || opener.length !== 5) {
-    document.getElementById('log-opener').style.borderColor = 'var(--accent)';
-    setTimeout(() => document.getElementById('log-opener').style.borderColor = '', 600);
+    openerEl.style.borderColor = 'var(--accent)';
+    setTimeout(() => openerEl.style.borderColor = '', 600);
     return;
   }
   if (solved && (guesses < 1 || guesses > 6)) {
-    document.getElementById('log-guesses').style.borderColor = 'var(--accent)';
-    setTimeout(() => document.getElementById('log-guesses').style.borderColor = '', 600);
+    guessesEl.style.borderColor = 'var(--accent)';
+    setTimeout(() => guessesEl.style.borderColor = '', 600);
     return;
   }
-  saveSession(solved, solved ? guesses : 7, opener);
+
+  const sessions = loadStats();
+  sessions.push({ date: new Date().toISOString().slice(0,10), solved, guesses: solved ? guesses : 7, opener });
+  localStorage.setItem('crackle-stats', JSON.stringify(sessions));
   renderStats();
 }
 
-// ── START ────────────────────────────────────────
-init();
+// ═══════════════════════════════════════════════════
+// STARTUP
+// ═══════════════════════════════════════════════════
+(async () => {
+  renderGrid();
+  await loadWords();
+  renderSuggestions();
+})();
 </script>
 </body>
 </html>

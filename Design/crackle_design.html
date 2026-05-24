@@ -1,0 +1,1280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crackle — Design System v11</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0a0a0e; color: #F2EDE4; font-family: 'DM Sans', sans-serif; padding: 48px 32px 80px; }
+
+  .page-title { font-family: 'Playfair Display', serif; font-size: 40px; font-weight: 900; color: #F2EDE4; }
+  .page-title em { color: #2DBCB0; font-style: normal; }
+  .page-subtitle { font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: #889098; margin-top: 6px; margin-bottom: 14px; }
+  .divider { border: none; border-top: 1px solid #2A3248; margin: 44px 0; }
+  .section-heading { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: #2DBCB0; margin-bottom: 22px; }
+
+  /* ── THEME GRID ── */
+  .theme-grid { display: flex; gap: 32px; flex-wrap: wrap; margin-bottom: 12px; }
+  .theme-block { flex: 1; min-width: 260px; border-radius: 16px; overflow: hidden; border: 2px solid; }
+  .theme-header { padding: 14px 18px 10px; }
+  .theme-name { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 900; }
+  .theme-sub { font-family: 'Space Mono', monospace; font-size: 8px; letter-spacing: 0.15em; text-transform: uppercase; margin-top: 3px; }
+  .theme-swatches { display: flex; gap: 6px; padding: 10px 18px 14px; }
+  .ts { width: 32px; height: 32px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); }
+
+  /* ── PALETTE ── */
+  .palette-group { margin-bottom: 28px; }
+  .palette-label { font-family: 'Space Mono', monospace; font-size: 8px; letter-spacing: 0.16em; text-transform: uppercase; color: #889098; margin-bottom: 10px; }
+  .swatches { display: flex; gap: 10px; flex-wrap: wrap; }
+  .swatch { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .swatch-box { width: 80px; height: 56px; border-radius: 10px; border: 1px solid #2A3248; }
+  .swatch-name { font-family: 'Space Mono', monospace; font-size: 8px; color: #B8C4DC; text-align: center; }
+  .swatch-hex  { font-family: 'Space Mono', monospace; font-size: 8px; color: #526070; text-align: center; }
+
+  /* ── TYPOGRAPHY ── */
+  .type-row { display: flex; flex-direction: column; gap: 4px; margin-bottom: 18px; padding-bottom: 18px; border-bottom: 1px solid #1E2535; }
+  .type-sample { line-height: 1.2; }
+  .type-meta { font-family: 'Space Mono', monospace; font-size: 8px; color: #526070; margin-top: 4px; }
+
+  /* ── TILES ── */
+  .tile-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-start; }
+  .tile-group { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .tile-label { font-family: 'Space Mono', monospace; font-size: 8px; color: #889098; text-align: center; }
+  .tile { width: 52px; height: 52px; border-radius: 7px; border: 1.5px solid #3A4460; background: #2A3248; display: flex; align-items: center; justify-content: center; font-family: 'Space Mono', monospace; font-size: 18px; font-weight: 700; color: transparent; }
+  .t-absent  { color: #B8C4DC; }
+  .t-present { background: #3D3010; border-color: #7A6020; color: #E8C060; }
+  .t-correct { background: #243D2E; border-color: #376B4A; color: #8ED9A8; }
+
+  /* ── PILLS ── */
+  .pill-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .pill { padding: 4px 12px; border-radius: 20px; font-family: 'Space Mono', monospace; font-size: 10px; font-weight: 700; border: 1px solid; }
+  .p-correct { background: #243D2E; border-color: #376B4A; color: #8ED9A8; }
+  .p-present { background: #3D3010; border-color: #7A6020; color: #E8C060; }
+  .p-absent  { background: #2A3248; border-color: #3A4460; color: #B8C4DC; }
+
+  /* ── SUGGESTION CARDS ── */
+  .sugg-demo { display: flex; flex-direction: column; gap: 5px; max-width: 340px; }
+  .sugg-item { display: flex; align-items: center; justify-content: space-between; border-radius: 8px; padding: 9px 12px; background: #1E2535; border: 1px solid #3A4460; }
+  .sugg-item.best { border-color: rgba(45,188,176,0.5); }
+  .sugg-item.used { opacity: 0.6; }
+  .sugg-word { font-family: 'Space Mono', monospace; font-size: 14px; font-weight: 700; letter-spacing: 0.1em; color: #D8D4CC; }
+  .sugg-word.best { color: #8ED9A8; }
+  .sugg-word.used { color: #889098; text-decoration: line-through; }
+  .sugg-badge { font-family: 'DM Sans', sans-serif; font-size: 8px; color: #2DBCB0; text-transform: uppercase; margin-left: 6px; }
+  .sugg-used-tag { font-family: 'DM Sans', sans-serif; font-size: 8px; color: #889098; font-style: italic; margin-left: 6px; }
+  .sugg-right { display: flex; align-items: center; gap: 6px; }
+  .s-bar { width: 36px; height: 3px; border-radius: 2px; background: #3A4460; overflow: hidden; }
+  .s-fill { height: 100%; border-radius: 2px; }
+  .s-num { font-family: 'Space Mono', monospace; font-size: 8px; color: #889098; width: 22px; text-align: right; }
+
+  /* ── BUTTONS ── */
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .btn { padding: 9px 18px; border-radius: 8px; font-family: 'Space Mono', monospace; font-size: 11px; font-weight: 700; border: none; cursor: pointer; }
+  .btn-primary   { background: #2DBCB0; color: #141210; }
+  .btn-secondary { background: #1E2535; color: #889098; border: 1px solid #3A4460; }
+
+  /* ── NAV ── */
+  .nav-demo { background: #141210; border-radius: 16px; padding: 14px 40px; display: flex; justify-content: center; gap: 60px; border-top: 1px solid #3A4460; max-width: 375px; }
+  .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .nav-label { font-family: 'DM Sans', sans-serif; font-size: 9px; color: #526070; }
+  .nav-item.active .nav-label { color: #2DBCB0; }
+  .nav-item.stats-active .nav-label { color: #8ED9A8; }
+
+  /* ── PHONE ── */
+  .phone-row { display: flex; gap: 28px; flex-wrap: wrap; }
+  .phone-col { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .phone-caption { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; text-align: center; color: #889098; }
+  .phone { width: 248px; border-radius: 36px; border: 2px solid #3A4460; overflow: hidden; box-shadow: 0 28px 60px rgba(0,0,0,0.7), 0 0 0 7px #0a0a0e; background: #141210; }
+  .phone-notch { width: 72px; height: 20px; border-radius: 0 0 13px 13px; margin: 0 auto; background: #0a0a0e; }
+  .phone-inner { padding: 8px 16px 20px; display: flex; flex-direction: column; gap: 11px; }
+  .app-logo { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 900; color: #F2EDE4; }
+  .app-logo em { color: #2DBCB0; font-style: normal; }
+  .app-tagline { font-family: 'Space Mono', monospace; font-size: 6px; letter-spacing: 0.18em; text-transform: uppercase; color: #B8C4DC; margin-top: -1px; }
+  .section-micro { font-family: 'Space Mono', monospace; font-size: 7px; letter-spacing: 0.18em; text-transform: uppercase; color: #B8C4DC; margin-bottom: 6px; }
+  .pt { width: 34px; height: 34px; border-radius: 6px; border: 1.5px solid #3A4460; background: #2A3248; display: flex; align-items: center; justify-content: center; font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700; color: transparent; flex-shrink: 0; }
+  .pt-absent  { color: #B8C4DC; }
+  .pt-present { background: #3D3010; border-color: #7A6020; color: #E8C060; }
+  .pt-correct { background: #243D2E; border-color: #376B4A; color: #8ED9A8; }
+  .guess-grid { display: flex; flex-direction: column; gap: 4px; }
+  .guess-row  { display: flex; gap: 4px; align-items: center; }
+  .row-num { font-family: 'Space Mono', monospace; font-size: 7px; width: 12px; text-align: right; flex-shrink: 0; color: #889098; }
+  .constraints-box { background: #1E2535; border: 1px solid #3A4460; border-radius: 10px; padding: 8px 10px; }
+  .pills-wrap { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
+  .ppill { padding: 2px 8px; border-radius: 20px; font-family: 'Space Mono', monospace; font-size: 8px; font-weight: 700; border: 1px solid; }
+  .pp-correct { background: #243D2E; border-color: #376B4A; color: #8ED9A8; }
+  .pp-present { background: #3D3010; border-color: #7A6020; color: #E8C060; }
+  .pp-absent  { background: #2A3248; border-color: #3A4460; color: #B8C4DC; }
+  .sugg-header-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 5px; }
+  .sugg-count-label { font-family: 'Space Mono', monospace; font-size: 8px; color: #2DBCB0; }
+  .ps-item { display: flex; align-items: center; justify-content: space-between; border-radius: 7px; padding: 7px 9px; background: #1E2535; border: 1px solid #3A4460; flex-shrink: 0; }
+  .ps-item.best { border-color: rgba(45,188,176,0.5); }
+  .ps-item.used { opacity: 0.6; }
+  .ps-word { font-family: 'Space Mono', monospace; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: #D8D4CC; }
+  .ps-word.best { color: #8ED9A8; }
+  .ps-word.used { color: #889098; text-decoration: line-through; }
+  .ps-badge { font-family: 'DM Sans', sans-serif; font-size: 7px; color: #2DBCB0; text-transform: uppercase; margin-left: 4px; }
+  .ps-used-tag { font-family: 'DM Sans', sans-serif; font-size: 7px; color: #889098; font-style: italic; margin-left: 4px; }
+  .ps-right { display: flex; align-items: center; gap: 4px; }
+  .ps-bar { width: 28px; height: 3px; border-radius: 2px; background: #3A4460; overflow: hidden; }
+  .ps-fill { height: 100%; border-radius: 2px; }
+  .ps-num { font-family: 'Space Mono', monospace; font-size: 7px; color: #889098; width: 18px; text-align: right; }
+  .phone-bnav { display: flex; justify-content: center; gap: 32px; padding: 8px 0 4px; border-top: 1px solid #3A4460; margin-top: 4px; }
+  .pnav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+  .pnav-label { font-family: 'DM Sans', sans-serif; font-size: 7px; color: #526070; }
+  .pnav-item.active .pnav-label { color: #2DBCB0; }
+  .pnav-item.stats-active .pnav-label { color: #8ED9A8; }
+  .pnav-item.settings-active .pnav-label { color: #B8C4DC; }
+  .stat-cards { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; }
+  .stat-card { background: #1E2535; border: 1px solid #3A4460; border-radius: 7px; padding: 7px 4px; text-align: center; }
+  .stat-val { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 900; color: #F2EDE4; line-height: 1; }
+  .stat-val.accent { color: #2DBCB0; }
+  .stat-lbl { font-family: 'Space Mono', monospace; font-size: 5px; color: #889098; letter-spacing: 0.1em; text-transform: uppercase; margin-top: 3px; }
+  .dist-wrap { display: flex; flex-direction: column; gap: 4px; }
+  .dist-row { display: flex; align-items: center; gap: 5px; }
+  .dist-lbl { font-family: 'Space Mono', monospace; font-size: 8px; color: #889098; width: 10px; text-align: right; flex-shrink: 0; }
+  .dist-lbl.fail { color: #2DBCB0; }
+  .dist-bar-wrap { flex: 1; height: 15px; background: #1E2535; border: 1px solid #3A4460; border-radius: 3px; overflow: hidden; }
+  .dist-bar { height: 100%; display: flex; align-items: center; padding-left: 4px; }
+  .dist-num { font-family: 'Space Mono', monospace; font-size: 7px; font-weight: 700; }
+  .opener-card { background: #1E2535; border: 1px solid #3A4460; border-radius: 10px; padding: 8px 10px; }
+  .opener-tiles { display: flex; gap: 3px; justify-content: center; margin: 6px 0 5px; }
+  .opener-tile { width: 30px; height: 30px; border-radius: 6px; border: 1.5px solid #3A4460; background: #2A3248; display: flex; align-items: center; justify-content: center; font-family: 'Space Mono', monospace; font-size: 12px; font-weight: 700; color: #B8C4DC; }
+  .opener-note { font-family: 'Space Mono', monospace; font-size: 7px; color: #889098; text-align: center; letter-spacing: 0.08em; }
+  .note { background: #0f131c; border: 1px solid #1E2535; border-radius: 10px; padding: 14px 16px; margin-top: 8px; max-width: 560px; }
+  .note p { font-family: 'DM Sans', sans-serif; font-size: 13px; color: #889098; line-height: 1.6; }
+  .note strong { color: #B8C4DC; font-weight: 500; }
+
+  /* ── GEAR ICON ── */
+  .gear-path { fill-rule: evenodd; }
+</style>
+</head>
+<body>
+
+<div class="page-title">crack<em>le</em></div>
+<div class="page-subtitle">Design System v11 — Default + Three Themes · Slate Blue Palette · Gear Icon Updated</div>
+
+<hr class="divider">
+
+<!-- ═══════════════════════════════════ -->
+<!-- THEME OVERVIEW -->
+<!-- ═══════════════════════════════════ -->
+<div class="section-heading">Theme Overview — Four Themes</div>
+
+<div class="theme-grid">
+
+  <!-- Default -->
+  <div class="theme-block" style="border-color:#2DBCB0;background:#141210;">
+    <div class="theme-header">
+      <div class="theme-name" style="color:#F2EDE4;">crack<span style="color:#2DBCB0;">le</span></div>
+      <div class="theme-sub" style="color:#2DBCB0;">Default · Dark · Slate Blue</div>
+    </div>
+    <div class="theme-swatches">
+      <div class="ts" style="background:#141210;"></div>
+      <div class="ts" style="background:#1E2535;"></div>
+      <div class="ts" style="background:#2DBCB0;"></div>
+      <div class="ts" style="background:#243D2E;"></div>
+      <div class="ts" style="background:#3D3010;border-color:#7A6020;"></div>
+      <div class="ts" style="background:#F2EDE4;border-color:#3A4460;"></div>
+    </div>
+  </div>
+
+  <!-- Daybreak -->
+  <div class="theme-block" style="border-color:#03AED2;background:#F4FEFE;">
+    <div class="theme-header">
+      <div class="theme-name" style="color:#0a1a22;">crack<span style="color:#F45B26;">le</span></div>
+      <div class="theme-sub" style="color:#03AED2;">Daybreak · Light · Cyan & Orange</div>
+    </div>
+    <div class="theme-swatches">
+      <div class="ts" style="background:#F4FEFE;border-color:#03AED2;"></div>
+      <div class="ts" style="background:#EAF9FD;border-color:#03AED2;"></div>
+      <div class="ts" style="background:#F45B26;"></div>
+      <div class="ts" style="background:#00C853;"></div>
+      <div class="ts" style="background:#F8DE22;border-color:#E8D800;"></div>
+      <div class="ts" style="background:#03AED2;"></div>
+    </div>
+  </div>
+
+  <!-- Ember -->
+  <div class="theme-block" style="border-color:#1E4A46;background:#091614;">
+    <div class="theme-header">
+      <div class="theme-name" style="color:#FAFAFA;">crack<span style="color:#FF6B35;">le</span></div>
+      <div class="theme-sub" style="color:#5A9E98;">Ember · Dark · Teal & Coral</div>
+    </div>
+    <div class="theme-swatches">
+      <div class="ts" style="background:#091614;"></div>
+      <div class="ts" style="background:#0F2422;"></div>
+      <div class="ts" style="background:#FF6B35;"></div>
+      <div class="ts" style="background:#0A7C6E;"></div>
+      <div class="ts" style="background:#2A1F00;border-color:#F59E0B;"></div>
+      <div class="ts" style="background:#FAFAFA;border-color:#1E4A46;"></div>
+    </div>
+  </div>
+
+  <!-- Lagoon -->
+  <div class="theme-block" style="border-color:#26CCC2;background:#F4FEFE;">
+    <div class="theme-header">
+      <div class="theme-name" style="color:#0A3835;">crack<span style="color:#FFB76C;">le</span></div>
+      <div class="theme-sub" style="color:#26CCC2;">Lagoon · Light · Dual Teal & Peach</div>
+    </div>
+    <div class="theme-swatches">
+      <div class="ts" style="background:#F4FEFE;border-color:#6AECE1;"></div>
+      <div class="ts" style="background:#D8F5F3;border-color:#6AECE1;"></div>
+      <div class="ts" style="background:#FFB76C;"></div>
+      <div class="ts" style="background:#FFF57E;border-color:#E8D800;"></div>
+      <div class="ts" style="background:#26CCC2;"></div>
+      <div class="ts" style="background:#0A3835;"></div>
+    </div>
+  </div>
+
+</div>
+
+<hr class="divider">
+
+<!-- ═══════════════════════════════════ -->
+<!-- DEFAULT THEME — full design system -->
+<!-- ═══════════════════════════════════ -->
+<div class="section-heading">Default Theme — Slate Blue · Full Design System</div>
+
+<div class="palette-group">
+  <div class="palette-label">Background Layers — warm charcoal base, cool slate-blue surfaces</div>
+  <div class="swatches">
+    <div class="swatch"><div class="swatch-box" style="background:#141210;"></div><div class="swatch-name">--bg-deep</div><div class="swatch-hex">#141210</div></div>
+    <div class="swatch"><div class="swatch-box" style="background:#1E2535;"></div><div class="swatch-name">--surface</div><div class="swatch-hex">#1E2535</div></div>
+    <div class="swatch"><div class="swatch-box" style="background:#2A3248;"></div><div class="swatch-name">--raised</div><div class="swatch-hex">#2A3248</div></div>
+    <div class="swatch"><div class="swatch-box" style="background:#3A4460;"></div><div class="swatch-name">--border</div><div class="swatch-hex">#3A4460</div></div>
+  </div>
+</div>
+<div class="palette-group">
+  <div class="palette-label">Accent & Text</div>
+  <div class="swatches">
+    <div class="swatch"><div class="swatch-box" style="background:#2DBCB0;"></div><div class="swatch-name">--accent</div><div class="swatch-hex">#2DBCB0</div></div>
+    <div class="swatch"><div class="swatch-box" style="background:#F2EDE4;border-color:#3A4460;"></div><div class="swatch-name">--text-primary</div><div class="swatch-hex">#F2EDE4</div></div>
+    <div class="swatch"><div class="swatch-box" style="background:#D8D4CC;border-color:#3A4460;"></div><div class="swatch-name">--text-secondary</div><div class="swatch-hex">#D8D4CC</div></div>
+    <div class="swatch"><div class="swatch-box" style="background:#B8C4DC;"></div><div class="swatch-name">--text-ui</div><div class="swatch-hex">#B8C4DC</div></div>
+    <div class="swatch"><div class="swatch-box" style="background:#889098;"></div><div class="swatch-name">--text-muted</div><div class="swatch-hex">#889098</div></div>
+    <div class="swatch"><div class="swatch-box" style="background:#526070;"></div><div class="swatch-name">--text-dim</div><div class="swatch-hex">#526070</div></div>
+  </div>
+</div>
+<div class="palette-group">
+  <div class="palette-label">Game State Colours</div>
+  <div class="swatches">
+    <div class="swatch"><div class="swatch-box" style="background:#243D2E;border-color:#376B4A;"></div><div class="swatch-name">--correct-bg</div><div class="swatch-hex">#243D2E</div></div>
+    <div class="swatch"><div class="swatch-box" style="background:#376B4A;"></div><div class="swatch-name">--correct-border</div><div class="swatch-hex">#376B4A</div></div>
+    <div class="swatch"><div class="swatch-box" style="background:#8ED9A8;border-color:#376B4A;"></div><div class="swatch-name">--correct-text</div><div class="swatch-hex">#8ED9A8</div></div>
+    <div class="swatch"><div class="swatch-box" style="background:#3D3010;border-color:#7A6020;"></div><div class="swatch-name">--present-bg</div><div class="swatch-hex">#3D3010</div></div>
+    <div class="swatch"><div class="swatch-box" style="background:#7A6020;"></div><div class="swatch-name">--present-border</div><div class="swatch-hex">#7A6020</div></div>
+    <div class="swatch"><div class="swatch-box" style="background:#E8C060;border-color:#7A6020;"></div><div class="swatch-name">--present-text</div><div class="swatch-hex">#E8C060</div></div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<div class="section-heading">Typography</div>
+<div class="type-row">
+  <div class="type-sample" style="font-family:'Playfair Display',serif;font-size:36px;font-weight:900;color:#F2EDE4;">crack<span style="color:#2DBCB0;">le</span></div>
+  <div class="type-meta">Playfair Display 900 · 24px mobile · Logo — "le" suffix in --accent</div>
+</div>
+<div class="type-row">
+  <div class="type-sample" style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:#B8C4DC;">Wordle Solver · Active Constraints · Suggestions</div>
+  <div class="type-meta">Space Mono 400 · 7px · letter-spacing +180 · uppercase · Section labels in --text-ui</div>
+</div>
+<div class="type-row">
+  <div class="type-sample" style="font-family:'Space Mono',monospace;font-size:22px;font-weight:700;color:#8ED9A8;letter-spacing:0.1em;">TRONE</div>
+  <div class="type-meta">Space Mono 700 · 13px · Best suggestion word in --correct-text</div>
+</div>
+<div class="type-row">
+  <div class="type-sample" style="font-family:'DM Sans',sans-serif;font-size:14px;color:#B8C4DC;">Type a word, press Add, then tap each tile to mark it green, yellow or grey.</div>
+  <div class="type-meta">DM Sans 400 · 11–13px · Body and instruction copy</div>
+</div>
+<div class="type-row">
+  <div class="type-sample"><span style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;color:#141210;background:#2DBCB0;padding:8px 16px;border-radius:8px;display:inline-block;">Add</span>&nbsp;&nbsp;<span style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;color:#889098;background:#1E2535;padding:8px 14px;border-radius:8px;display:inline-block;border:1px solid #3A4460;">Reset</span></div>
+  <div class="type-meta">DM Sans 700 · 11px · Add button in --accent. Reset in --surface.</div>
+</div>
+
+<hr class="divider">
+
+<div class="section-heading">Letter Tiles — 42×42px · 7px radius · 1.5px border · Tap to cycle</div>
+<div class="tile-row">
+  <div class="tile-group"><div class="tile">·</div><div class="tile-label">Empty</div></div>
+  <div class="tile-group"><div class="tile t-absent">S</div><div class="tile-label">Absent</div></div>
+  <div class="tile-group"><div class="tile t-present">T</div><div class="tile-label">Present</div></div>
+  <div class="tile-group"><div class="tile t-correct">A</div><div class="tile-label">Correct</div></div>
+  <div style="margin-left:20px;">
+    <div class="tile-label" style="margin-bottom:8px;color:#B8C4DC;">Tap cycle (new guesses start Absent):</div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div class="tile t-absent" style="width:38px;height:38px;font-size:14px;">S</div>
+      <div style="font-family:'Space Mono',monospace;font-size:10px;color:#526070;">→</div>
+      <div class="tile t-present" style="width:38px;height:38px;font-size:14px;">S</div>
+      <div style="font-family:'Space Mono',monospace;font-size:10px;color:#526070;">→</div>
+      <div class="tile t-correct" style="width:38px;height:38px;font-size:14px;">S</div>
+      <div style="font-family:'Space Mono',monospace;font-size:10px;color:#526070;">→</div>
+      <div class="tile t-absent" style="width:38px;height:38px;font-size:14px;">S</div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<div class="section-heading">Constraint Pills · Suggestion Cards · Navigation</div>
+<div class="pill-row" style="margin-bottom:24px;">
+  <span class="pill p-correct">_R_NE</span>
+  <span class="pill p-present">T ≠1</span>
+  <span class="pill p-present">E ≠4</span>
+  <span class="pill p-absent">S</span>
+  <span class="pill p-absent">A</span>
+  <span class="pill p-absent">C</span>
+</div>
+
+<div class="sugg-demo" style="margin-bottom:24px;">
+  <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;">
+    <div style="font-family:'Space Mono',monospace;font-size:8px;color:#B8C4DC;letter-spacing:0.18em;text-transform:uppercase;">Suggestions</div>
+    <div style="font-family:'Space Mono',monospace;font-size:8px;color:#2DBCB0;">12 words remain</div>
+  </div>
+  <div class="sugg-item best">
+    <div style="display:flex;align-items:baseline;"><span class="sugg-word best">TRONE</span><span class="sugg-badge">★ best</span></div>
+    <div class="sugg-right"><div class="s-bar"><div class="s-fill" style="width:92%;background:#2DBCB0;"></div></div><div class="s-num">9.2</div></div>
+  </div>
+  <div class="sugg-item">
+    <span class="sugg-word">DRONE</span>
+    <div class="sugg-right"><div class="s-bar"><div class="s-fill" style="width:76%;background:#686884;"></div></div><div class="s-num">7.6</div></div>
+  </div>
+  <div class="sugg-item used">
+    <div style="display:flex;align-items:baseline;"><span class="sugg-word used">TERNE</span><span class="sugg-used-tag">used</span></div>
+    <div class="sugg-right"><div class="s-bar"><div class="s-fill" style="width:54%;background:#484860;"></div></div><div class="s-num">5.4</div></div>
+  </div>
+</div>
+
+<!-- Navigation with updated gear icon (Option 1) -->
+<div class="section-heading">Navigation — Updated Gear Icon (Option 1)</div>
+<div class="nav-demo" style="margin-bottom:12px;">
+  <div class="nav-item active">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+      <circle cx="10" cy="10" r="6.5" stroke="#2DBCB0" stroke-width="1.8"/>
+      <line x1="15.2" y1="15.2" x2="20" y2="20" stroke="#2DBCB0" stroke-width="1.8" stroke-linecap="round"/>
+      <text x="10" y="13.5" text-anchor="middle" font-family="monospace" font-size="7" font-weight="700" fill="#2DBCB0">A</text>
+    </svg>
+    <div class="nav-label">Solve</div>
+  </div>
+  <div class="nav-item stats-active">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+      <rect x="2"  y="16" width="3.5" height="6"  rx="1" fill="#376b4a"/>
+      <rect x="7"  y="11" width="3.5" height="11" rx="1" fill="#7a6020"/>
+      <rect x="12" y="6"  width="3.5" height="16" rx="1" fill="#8ed9a8"/>
+      <rect x="17" y="13" width="3.5" height="9"  rx="1" fill="#e8c060"/>
+      <line x1="1" y1="22.5" x2="23" y2="22.5" stroke="#3A4460" stroke-width="1.2" stroke-linecap="round"/>
+    </svg>
+    <div class="nav-label">Stats</div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ═══════════════════════════════════ -->
+<!-- DEFAULT PHONE MOCKUPS -->
+<!-- ═══════════════════════════════════ -->
+<div class="section-heading">Default Theme — Phone Mockups</div>
+<div class="phone-row">
+
+  <!-- SOLVE -->
+  <div class="phone-col">
+    <div class="phone-caption">Solve — Active</div>
+    <div class="phone">
+      <div class="phone-notch"></div>
+      <div class="phone-inner">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div><div class="app-logo">crack<em>le</em></div><div class="app-tagline">Wordle Solver</div></div>
+        </div>
+        <div>
+          <div class="section-micro">Enter a guess word</div>
+          <div style="display:flex;gap:5px;">
+            <div style="flex:1;background:#2A3248;border:1px solid #3A4460;border-radius:8px;padding:7px 10px;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;color:#526070;text-align:center;letter-spacing:0.2em;">CRANE</div>
+            <div style="background:#2DBCB0;border-radius:8px;padding:7px 12px;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;color:#141210;">Add</div>
+            <div style="background:#1E2535;border:1px solid #3A4460;border-radius:8px;padding:7px 10px;font-family:'Space Mono',monospace;font-size:9px;color:#889098;">Reset</div>
+          </div>
+        </div>
+        <div>
+          <div class="section-micro">Tap a tile to cycle: grey → yellow → green</div>
+          <div class="guess-grid">
+            <div class="guess-row"><span class="row-num">1</span><div class="pt pt-absent">S</div><div class="pt pt-present">T</div><div class="pt pt-absent">A</div><div class="pt pt-absent">R</div><div class="pt pt-present">E</div></div>
+            <div class="guess-row"><span class="row-num">2</span><div class="pt pt-absent">C</div><div class="pt pt-correct">R</div><div class="pt pt-absent">A</div><div class="pt pt-correct">N</div><div class="pt pt-correct">E</div></div>
+            <div class="guess-row"><span class="row-num">3</span><div class="pt"></div><div class="pt"></div><div class="pt"></div><div class="pt"></div><div class="pt"></div></div>
+          </div>
+        </div>
+        <div class="constraints-box">
+          <div class="section-micro" style="margin-bottom:0;">Active constraints</div>
+          <div class="pills-wrap">
+            <span class="ppill pp-correct">_R_NE</span><span class="ppill pp-present">T ≠1</span><span class="ppill pp-present">E ≠4</span><span class="ppill pp-absent">S</span><span class="ppill pp-absent">A</span><span class="ppill pp-absent">C</span>
+          </div>
+        </div>
+        <div>
+          <div class="sugg-header-row">
+            <div class="section-micro" style="margin-bottom:0;">Suggestions</div>
+            <div class="sugg-count-label">12 words remain</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;">
+            <div class="ps-item best"><div style="display:flex;align-items:baseline;"><span class="ps-word best">TRONE</span><span class="ps-badge">★ best</span></div><div class="ps-right"><div class="ps-bar"><div class="ps-fill" style="width:92%;background:#2DBCB0;"></div></div><div class="ps-num">9.2</div></div></div>
+            <div class="ps-item"><span class="ps-word">DRONE</span><div class="ps-right"><div class="ps-bar"><div class="ps-fill" style="width:76%;background:#686884;"></div></div><div class="ps-num">7.6</div></div></div>
+            <div class="ps-item used"><div style="display:flex;align-items:baseline;"><span class="ps-word used">TERNE</span><span class="ps-used-tag">used</span></div><div class="ps-right"><div class="ps-bar"><div class="ps-fill" style="width:54%;background:#484860;"></div></div><div class="ps-num">5.4</div></div></div>
+            <div class="ps-item"><span class="ps-word">PRONE</span><div class="ps-right"><div class="ps-bar"><div class="ps-fill" style="width:40%;background:#686884;"></div></div><div class="ps-num">4.0</div></div></div>
+          </div>
+        </div>
+<div class="phone-bnav" style="border-top-color:#3A4460;">
+          <div class="pnav-item active"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="10" cy="10" r="6.5" stroke="#2DBCB0" stroke-width="1.8"/><line x1="15.2" y1="15.2" x2="20" y2="20" stroke="#2DBCB0" stroke-width="1.8" stroke-linecap="round"/><text x="10" y="13.5" text-anchor="middle" font-family="monospace" font-size="7" font-weight="700" fill="#2DBCB0">A</text></svg><div class="pnav-label">Solve</div></div>
+          <div class="pnav-item "><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="2" y="16" width="3.5" height="6" rx="1" fill="#333348"/><rect x="7" y="11" width="3.5" height="11" rx="1" fill="#333348"/><rect x="12" y="6" width="3.5" height="16" rx="1" fill="#444458"/><rect x="17" y="13" width="3.5" height="9" rx="1" fill="#333348"/><line x1="1" y1="22.5" x2="23" y2="22.5" stroke="#3A4460" stroke-width="1.2" stroke-linecap="round"/></svg><div class="pnav-label">Stats</div></div>
+          <div class="pnav-item "><svg width="18" height="18" viewBox="0 0 100 100" fill="none"><path fill-rule="evenodd" d="M 42 8 Q 50 5 58 8 L 60 18 Q 66 20 71 24 L 81 20 Q 87 25 90 32 L 83 40 Q 85 46 85 50 Q 85 54 83 60 L 90 68 Q 87 75 81 80 L 71 76 Q 66 80 60 82 L 58 92 Q 50 95 42 92 L 40 82 Q 34 80 29 76 L 19 80 Q 13 75 10 68 L 17 60 Q 15 54 15 50 Q 15 46 17 40 L 10 32 Q 13 25 19 20 L 29 24 Q 34 20 40 18 Z M 50 36 A 14 14 0 1 0 50 64 A 14 14 0 1 0 50 36 Z" fill="#526070"/></svg><div class="pnav-label">Settings</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="phone-col">
+    <div class="phone-caption">Stats — Active</div>
+    <div class="phone">
+      <div class="phone-notch"></div>
+      <div class="phone-inner">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div><div class="app-logo">crack<em>le</em></div><div class="app-tagline">Your Stats</div></div>
+          <div style="font-family:'Space Mono',monospace;font-size:8px;color:#2DBCB0;background:#2A3248;border:1px solid rgba(45,188,176,0.3);border-radius:8px;padding:3px 8px;">Today ✓</div>
+        </div>
+        <div class="stat-cards">
+          <div class="stat-card" style="border-color:rgba(45,188,176,0.3);"><div class="stat-val accent">47</div><div class="stat-lbl">Played</div></div>
+          <div class="stat-card"><div class="stat-val">94%</div><div class="stat-lbl">Win Rate</div></div>
+          <div class="stat-card"><div class="stat-val">12</div><div class="stat-lbl">Streak</div></div>
+        </div>
+        <div>
+          <div class="section-micro">Guess Distribution</div>
+          <div class="dist-wrap">
+            <div class="dist-row"><div class="dist-lbl">2</div><div class="dist-bar-wrap"><div class="dist-bar" style="width:12%;background:#243d2e;"><span class="dist-num" style="color:#8ed9a8;">4</span></div></div></div>
+            <div class="dist-row"><div class="dist-lbl">3</div><div class="dist-bar-wrap"><div class="dist-bar" style="width:34%;background:#3d3010;"><span class="dist-num" style="color:#e8c060;">15</span></div></div></div>
+            <div class="dist-row"><div class="dist-lbl">4</div><div class="dist-bar-wrap"><div class="dist-bar" style="width:100%;background:#376b4a;"><span class="dist-num" style="color:#fff;font-weight:700;">22 ←</span></div></div></div>
+            <div class="dist-row"><div class="dist-lbl">5</div><div class="dist-bar-wrap"><div class="dist-bar" style="width:16%;background:#3d3010;"><span class="dist-num" style="color:#e8c060;">7</span></div></div></div>
+            <div class="dist-row"><div class="dist-lbl fail">✗</div><div class="dist-bar-wrap"><div class="dist-bar" style="width:8%;background:#3d1a14;"><span class="dist-num" style="color:#2DBCB0;">3</span></div></div></div>
+          </div>
+        </div>
+        <div class="opener-card">
+          <div class="section-micro" style="margin-bottom:0;">Best Opener</div>
+          <div class="opener-tiles">
+            <div class="opener-tile">S</div><div class="opener-tile">T</div><div class="opener-tile">A</div><div class="opener-tile">R</div><div class="opener-tile">E</div>
+          </div>
+          <div class="opener-note">avg 3.8 guesses when used</div>
+        </div>
+<div class="phone-bnav" style="border-top-color:#3A4460;">
+          <div class="pnav-item "><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="10" cy="10" r="6.5" stroke="#526070" stroke-width="1.8"/><line x1="15.2" y1="15.2" x2="20" y2="20" stroke="#526070" stroke-width="1.8" stroke-linecap="round"/><text x="10" y="13.5" text-anchor="middle" font-family="monospace" font-size="7" font-weight="700" fill="#526070">A</text></svg><div class="pnav-label">Solve</div></div>
+          <div class="pnav-item stats-active"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="2" y="16" width="3.5" height="6" rx="1" fill="#376b4a"/><rect x="7" y="11" width="3.5" height="11" rx="1" fill="#7a6020"/><rect x="12" y="6" width="3.5" height="16" rx="1" fill="#8ed9a8"/><rect x="17" y="13" width="3.5" height="9" rx="1" fill="#e8c060"/><line x1="1" y1="22.5" x2="23" y2="22.5" stroke="#3A4460" stroke-width="1.2" stroke-linecap="round"/></svg><div class="pnav-label">Stats</div></div>
+          <div class="pnav-item "><svg width="18" height="18" viewBox="0 0 100 100" fill="none"><path fill-rule="evenodd" d="M 42 8 Q 50 5 58 8 L 60 18 Q 66 20 71 24 L 81 20 Q 87 25 90 32 L 83 40 Q 85 46 85 50 Q 85 54 83 60 L 90 68 Q 87 75 81 80 L 71 76 Q 66 80 60 82 L 58 92 Q 50 95 42 92 L 40 82 Q 34 80 29 76 L 19 80 Q 13 75 10 68 L 17 60 Q 15 54 15 50 Q 15 46 17 40 L 10 32 Q 13 25 19 20 L 29 24 Q 34 20 40 18 Z M 50 36 A 14 14 0 1 0 50 64 A 14 14 0 1 0 50 36 Z" fill="#526070"/></svg><div class="pnav-label">Settings</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EMPTY -->
+  <div class="phone-col">
+    <div class="phone-caption">Empty State</div>
+    <div class="phone">
+      <div class="phone-notch"></div>
+      <div class="phone-inner">
+        <div><div class="app-logo">crack<em>le</em></div><div class="app-tagline">Wordle Solver</div></div>
+        <div>
+          <div class="section-micro">Enter a guess word</div>
+          <div style="display:flex;gap:5px;">
+            <div style="flex:1;background:#2A3248;border:1px solid #3A4460;border-radius:8px;padding:7px 10px;font-family:'DM Sans',sans-serif;font-size:10px;color:#526070;text-align:center;">5 letters, then Add</div>
+            <div style="background:#2DBCB0;border-radius:8px;padding:7px 12px;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;color:#141210;">Add</div>
+            <div style="background:#1E2535;border:1px solid #3A4460;border-radius:8px;padding:7px 10px;font-family:'Space Mono',monospace;font-size:9px;color:#889098;">Reset</div>
+          </div>
+        </div>
+        <div>
+          <div class="section-micro">Tap a tile to cycle: grey → yellow → green</div>
+          <div class="guess-grid">
+            <div class="guess-row"><span class="row-num">1</span><div class="pt"></div><div class="pt"></div><div class="pt"></div><div class="pt"></div><div class="pt"></div></div>
+            <div class="guess-row"><span class="row-num">2</span><div class="pt"></div><div class="pt"></div><div class="pt"></div><div class="pt"></div><div class="pt"></div></div>
+          </div>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:8px 0;">
+          <div style="font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:#C8C6E0;line-height:1.3;">Enter your<br>first guess above</div>
+          <div style="font-family:'DM Sans',sans-serif;font-size:11px;color:#B8C4DC;line-height:1.5;max-width:160px;">Type a word, press Add, then tap each tile to mark it.</div>
+          <div style="margin-top:4px;">
+            <div style="font-family:'Space Mono',monospace;font-size:7px;color:#B8C4DC;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:6px;">Try starting with</div>
+            <div style="display:flex;gap:4px;justify-content:center;">
+              <div class="pt pt-absent" style="width:30px;height:30px;font-size:12px;">S</div>
+              <div class="pt pt-absent" style="width:30px;height:30px;font-size:12px;">T</div>
+              <div class="pt pt-absent" style="width:30px;height:30px;font-size:12px;">A</div>
+              <div class="pt pt-absent" style="width:30px;height:30px;font-size:12px;">R</div>
+              <div class="pt pt-absent" style="width:30px;height:30px;font-size:12px;">E</div>
+            </div>
+          </div>
+        </div>
+<div class="phone-bnav" style="border-top-color:#3A4460;">
+          <div class="pnav-item active"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="10" cy="10" r="6.5" stroke="#2DBCB0" stroke-width="1.8"/><line x1="15.2" y1="15.2" x2="20" y2="20" stroke="#2DBCB0" stroke-width="1.8" stroke-linecap="round"/><text x="10" y="13.5" text-anchor="middle" font-family="monospace" font-size="7" font-weight="700" fill="#2DBCB0">A</text></svg><div class="pnav-label">Solve</div></div>
+          <div class="pnav-item "><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="2" y="16" width="3.5" height="6" rx="1" fill="#333348"/><rect x="7" y="11" width="3.5" height="11" rx="1" fill="#333348"/><rect x="12" y="6" width="3.5" height="16" rx="1" fill="#444458"/><rect x="17" y="13" width="3.5" height="9" rx="1" fill="#333348"/><line x1="1" y1="22.5" x2="23" y2="22.5" stroke="#3A4460" stroke-width="1.2" stroke-linecap="round"/></svg><div class="pnav-label">Stats</div></div>
+          <div class="pnav-item "><svg width="18" height="18" viewBox="0 0 100 100" fill="none"><path fill-rule="evenodd" d="M 42 8 Q 50 5 58 8 L 60 18 Q 66 20 71 24 L 81 20 Q 87 25 90 32 L 83 40 Q 85 46 85 50 Q 85 54 83 60 L 90 68 Q 87 75 81 80 L 71 76 Q 66 80 60 82 L 58 92 Q 50 95 42 92 L 40 82 Q 34 80 29 76 L 19 80 Q 13 75 10 68 L 17 60 Q 15 54 15 50 Q 15 46 17 40 L 10 32 Q 13 25 19 20 L 29 24 Q 34 20 40 18 Z M 50 36 A 14 14 0 1 0 50 64 A 14 14 0 1 0 50 36 Z" fill="#526070"/></svg><div class="pnav-label">Settings</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<hr class="divider">
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- THEME: DAYBREAK -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="section-heading">Theme: Daybreak — Light · Cyan & Orange · Vivid</div>
+
+<div style="display:flex;gap:24px;flex-wrap:wrap;margin-bottom:8px;">
+  <!-- Daybreak Solve -->
+  <div class="phone-col">
+    <div class="phone-caption" style="color:#03AED2;">Solve</div>
+    <div class="phone" style="background:#FFFFFF;border-color:#03AED2;box-shadow:0 0 0 6px #A8E8F5,0 20px 50px rgba(3,174,210,0.2);">
+      <div class="phone-notch" style="background:#D8F5FC;"></div>
+      <div class="phone-inner">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <div class="app-logo" style="color:#001820;">crack<span style="color:#F45B26;">le</span></div>
+            <div class="app-tagline" style="color:#03AED2;">Wordle Solver</div>
+          </div>
+        </div>
+        <div>
+          <div class="section-micro" style="color:#03AED2;">Enter a guess word</div>
+          <div style="display:flex;gap:5px;">
+            <div style="flex:1;background:#EAF9FD;border:1.5px solid #03AED2;border-radius:8px;padding:7px 10px;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;color:#03AED2;text-align:center;letter-spacing:0.2em;">CRANE</div>
+            <div style="background:#F45B26;border-radius:8px;padding:7px 12px;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;color:#FFFFFF;">Add</div>
+            <div style="background:#EAF9FD;border:1.5px solid #A8E8F5;border-radius:8px;padding:7px 10px;font-family:'Space Mono',monospace;font-size:9px;color:#60C8E0;">Reset</div>
+          </div>
+        </div>
+        <div>
+          <div class="section-micro" style="color:#03AED2;">Tap a tile to cycle</div>
+          <div class="guess-grid">
+            <div class="guess-row"><span class="row-num" style="color:#A8E8F5;">1</span>
+              <div style="width:34px;height:34px;border-radius:6px;border:1.5px solid #03AED2;background:#FFFFFF;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:#024a68;flex-shrink:0;">S</div>
+              <div style="width:34px;height:34px;border-radius:6px;border:2px solid #E8C800;background:#F8DE22;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:#5a4800;flex-shrink:0;">T</div>
+              <div style="width:34px;height:34px;border-radius:6px;border:1.5px solid #03AED2;background:#FFFFFF;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:#024a68;flex-shrink:0;">A</div>
+              <div style="width:34px;height:34px;border-radius:6px;border:1.5px solid #03AED2;background:#FFFFFF;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:#024a68;flex-shrink:0;">R</div>
+              <div style="width:34px;height:34px;border-radius:6px;border:2px solid #E8C800;background:#F8DE22;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:#5a4800;flex-shrink:0;">E</div>
+            </div>
+            <div class="guess-row"><span class="row-num" style="color:#A8E8F5;">2</span>
+              <div style="width:34px;height:34px;border-radius:6px;border:1.5px solid #03AED2;background:#FFFFFF;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:#024a68;flex-shrink:0;">C</div>
+              <div style="width:34px;height:34px;border-radius:6px;border:2px solid #00A846;background:#00C853;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:#003319;flex-shrink:0;">R</div>
+              <div style="width:34px;height:34px;border-radius:6px;border:1.5px solid #03AED2;background:#FFFFFF;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:#024a68;flex-shrink:0;">A</div>
+              <div style="width:34px;height:34px;border-radius:6px;border:2px solid #00A846;background:#00C853;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:#003319;flex-shrink:0;">N</div>
+              <div style="width:34px;height:34px;border-radius:6px;border:2px solid #00A846;background:#00C853;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:#003319;flex-shrink:0;">E</div>
+            </div>
+            <div class="guess-row"><span class="row-num" style="color:#A8E8F5;">3</span>
+              <div style="width:34px;height:34px;border-radius:6px;border:1.5px solid #A8E8F5;background:#F5FEFF;flex-shrink:0;"></div>
+              <div style="width:34px;height:34px;border-radius:6px;border:1.5px solid #A8E8F5;background:#F5FEFF;flex-shrink:0;"></div>
+              <div style="width:34px;height:34px;border-radius:6px;border:1.5px solid #A8E8F5;background:#F5FEFF;flex-shrink:0;"></div>
+              <div style="width:34px;height:34px;border-radius:6px;border:1.5px solid #A8E8F5;background:#F5FEFF;flex-shrink:0;"></div>
+              <div style="width:34px;height:34px;border-radius:6px;border:1.5px solid #A8E8F5;background:#F5FEFF;flex-shrink:0;"></div>
+            </div>
+          </div>
+        </div>
+        <div style="background:#EAF9FD;border:1.5px solid #03AED2;border-radius:10px;padding:8px 10px;">
+          <div class="section-micro" style="color:#03AED2;margin-bottom:5px;">Active constraints</div>
+          <div style="display:flex;flex-wrap:wrap;gap:4px;">
+            <span style="padding:2px 8px;border-radius:20px;font-family:'Space Mono',monospace;font-size:8px;font-weight:700;background:#00C853;color:#003319;border:1.5px solid #00A846;">_R_NE</span>
+            <span style="padding:2px 8px;border-radius:20px;font-family:'Space Mono',monospace;font-size:8px;font-weight:700;background:#F8DE22;color:#5a4800;border:1.5px solid #E8C800;">T</span>
+            <span style="padding:2px 8px;border-radius:20px;font-family:'Space Mono',monospace;font-size:8px;font-weight:700;background:#FFFFFF;color:#024a68;border:1.5px solid #03AED2;">S</span>
+            <span style="padding:2px 8px;border-radius:20px;font-family:'Space Mono',monospace;font-size:8px;font-weight:700;background:#FFFFFF;color:#024a68;border:1.5px solid #03AED2;">A</span>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;">
+            <div class="section-micro" style="color:#03AED2;margin-bottom:0;">Suggestions</div>
+            <div style="font-family:'Space Mono',monospace;font-size:8px;color:#F45B26;font-weight:700;">12 remain</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;border-radius:8px;padding:7px 10px;background:#FFF3EE;border:1.5px solid #A8E8F5;border-left:4px solid #F45B26;">
+              <div><span style="font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:0.1em;color:#F45B26;">TRONE</span><span style="font-family:'DM Sans',sans-serif;font-size:7px;color:#F45B26;text-transform:uppercase;margin-left:4px;font-weight:700;">★ best</span></div>
+              <div style="display:flex;align-items:center;gap:4px;"><div style="width:28px;height:3px;border-radius:2px;overflow:hidden;background:#A8E8F5;"><div style="width:92%;height:100%;background:#F45B26;"></div></div><div style="font-family:'Space Mono',monospace;font-size:7px;color:#60C8E0;width:18px;text-align:right;">9.2</div></div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;border-radius:8px;padding:7px 10px;background:#EAF9FD;border:1.5px solid #A8E8F5;">
+              <span style="font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:0.1em;color:#024a68;">DRONE</span>
+              <div style="display:flex;align-items:center;gap:4px;"><div style="width:28px;height:3px;border-radius:2px;overflow:hidden;background:#A8E8F5;"><div style="width:76%;height:100%;background:#03AED2;"></div></div><div style="font-family:'Space Mono',monospace;font-size:7px;color:#60C8E0;width:18px;text-align:right;">7.6</div></div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:center;gap:24px;padding:8px 0 4px;border-top:2px solid #03AED2;margin-top:4px;">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="10" cy="10" r="6.5" stroke="#F45B26" stroke-width="2"/><line x1="15.2" y1="15.2" x2="20" y2="20" stroke="#F45B26" stroke-width="2" stroke-linecap="round"/><text x="10" y="13.5" text-anchor="middle" font-family="monospace" font-size="7" font-weight="700" fill="#F45B26">A</text></svg>
+            <div style="font-family:'DM Sans',sans-serif;font-size:7px;color:#F45B26;font-weight:700;">Solve</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="2" y="16" width="3.5" height="6" rx="1" fill="#A8E8F5"/><rect x="7" y="11" width="3.5" height="11" rx="1" fill="#A8E8F5"/><rect x="12" y="6" width="3.5" height="16" rx="1" fill="#C8F0F8"/><rect x="17" y="13" width="3.5" height="9" rx="1" fill="#A8E8F5"/><line x1="1" y1="22.5" x2="23" y2="22.5" stroke="#A8E8F5" stroke-width="1.2" stroke-linecap="round"/></svg>
+            <div style="font-family:'DM Sans',sans-serif;font-size:7px;color:#A8E8F5;">Stats</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
+            <svg width="18" height="18" viewBox="0 0 100 100" fill="none"><path fill-rule="evenodd" d="M 42 8 Q 50 5 58 8 L 60 18 Q 66 20 71 24 L 81 20 Q 87 25 90 32 L 83 40 Q 85 46 85 50 Q 85 54 83 60 L 90 68 Q 87 75 81 80 L 71 76 Q 66 80 60 82 L 58 92 Q 50 95 42 92 L 40 82 Q 34 80 29 76 L 19 80 Q 13 75 10 68 L 17 60 Q 15 54 15 50 Q 15 46 17 40 L 10 32 Q 13 25 19 20 L 29 24 Q 34 20 40 18 Z M 50 36 A 14 14 0 1 0 50 64 A 14 14 0 1 0 50 36 Z" fill="#60C8E0"/></svg>
+            <div style="font-family:'DM Sans',sans-serif;font-size:7px;color:#60C8E0;">Settings</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Daybreak tile legend -->
+  <div style="display:flex;flex-direction:column;gap:16px;justify-content:center;">
+    <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:#F45B26;">Daybreak Tiles</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+        <div style="width:48px;height:48px;border-radius:7px;background:#F5FEFF;border:1.5px solid #A8E8F5;"></div>
+        <div style="font-family:'Space Mono',monospace;font-size:8px;color:#03AED2;">Empty</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+        <div style="width:48px;height:48px;border-radius:7px;background:#FFFFFF;border:1.5px solid #03AED2;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:18px;font-weight:700;color:#024a68;">S</div>
+        <div style="font-family:'Space Mono',monospace;font-size:8px;color:#03AED2;">Absent</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+        <div style="width:48px;height:48px;border-radius:7px;background:#F8DE22;border:2px solid #E8C800;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:18px;font-weight:700;color:#5a4800;">T</div>
+        <div style="font-family:'Space Mono',monospace;font-size:8px;color:#03AED2;">Present</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+        <div style="width:48px;height:48px;border-radius:7px;background:#00C853;border:2px solid #00A846;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:18px;font-weight:700;color:#003319;">R</div>
+        <div style="font-family:'Space Mono',monospace;font-size:8px;color:#03AED2;">Correct</div>
+      </div>
+    </div>
+    <div class="note" style="background:#EAF9FD;border-color:#A8E8F5;max-width:280px;">
+      <p style="color:#024a68;"><strong style="color:#F45B26;">Light theme.</strong> White phone, pale cyan surfaces. Orange accent (#F45B26) — logo, nav, best suggestion. Vivid green (#00C853) for correct. Full yellow (#F8DE22) for present. Cyan (#03AED2) for UI chrome and absent tile borders.</p>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- THEME: EMBER -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="section-heading">Theme: Ember — Dark · Deep Teal & Coral Amber</div>
+
+<div style="display:flex;gap:24px;flex-wrap:wrap;margin-bottom:8px;">
+  <!-- Ember Solve -->
+  <div class="phone-col">
+    <div class="phone-caption" style="color:#5A9E98;">Solve</div>
+    <div class="phone" style="background:#091614;border-color:#1E4A46;box-shadow:0 0 0 6px #050F0E,0 28px 60px rgba(10,124,110,0.3);">
+      <div class="phone-notch" style="background:#050F0E;"></div>
+      <div class="phone-inner">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <div class="app-logo" style="color:#FAFAFA;">crack<span style="color:#FF6B35;">le</span></div>
+            <div class="app-tagline" style="color:#5A9E98;">Wordle Solver</div>
+          </div>
+        </div>
+        <div>
+          <div class="section-micro" style="color:#5A9E98;">Enter a guess word</div>
+          <div style="display:flex;gap:5px;">
+            <div style="flex:1;background:#163430;border:1px solid #1E4A46;border-radius:8px;padding:7px 10px;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;color:#3A7A74;text-align:center;letter-spacing:0.2em;">CRANE</div>
+            <div style="background:#FF6B35;border-radius:8px;padding:7px 12px;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;color:#FAFAFA;">Add</div>
+            <div style="background:#0F2422;border:1px solid #1E4A46;border-radius:8px;padding:7px 10px;font-family:'Space Mono',monospace;font-size:9px;color:#3A7A74;">Reset</div>
+          </div>
+        </div>
+        <div>
+          <div class="section-micro" style="color:#5A9E98;">Tap a tile to cycle</div>
+          <div class="guess-grid">
+            <div class="guess-row"><span class="row-num" style="color:#3A7A74;">1</span>
+              <div style="width:34px;height:34px;border-radius:6px;border:1.5px solid #1E4A46;background:#163430;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:#5A9E98;flex-shrink:0;">S</div>
+              <div style="width:34px;height:34px;border-radius:6px;border:2px solid #F59E0B;background:#2A1F00;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:#F59E0B;flex-shrink:0;">T</div>
+              <div style="width:34px;height:34px;border-radius:6px;border:1.5px solid #1E4A46;background:#163430;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:#5A9E98;flex-shrink:0;">A</div>
+              <div style="width:34px;height:34px;border-radius:6px;border:1.5px solid #1E4A46;background:#163430;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:#5A9E98;flex-shrink:0;">R</div>
+              <div style="width:34px;height:34px;border-radius:6px;border:2px solid #F59E0B;background:#2A1F00;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:#F59E0B;flex-shrink:0;">E</div>
+            </div>
+            <div class="guess-row"><span class="row-num" style="color:#3A7A74;">2</span>
+              <div style="width:34px;height:34px;border-radius:6px;border:1.5px solid #1E4A46;background:#163430;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:#5A9E98;flex-shrink:0;">C</div>
+              <div style="width:34px;height:34px;border-radius:6px;border:2px solid #0E9E8E;background:#0A7C6E;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:#FAFAFA;flex-shrink:0;">R</div>
+              <div style="width:34px;height:34px;border-radius:6px;border:1.5px solid #1E4A46;background:#163430;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:#5A9E98;flex-shrink:0;">A</div>
+              <div style="width:34px;height:34px;border-radius:6px;border:2px solid #0E9E8E;background:#0A7C6E;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:#FAFAFA;flex-shrink:0;">N</div>
+              <div style="width:34px;height:34px;border-radius:6px;border:2px solid #0E9E8E;background:#0A7C6E;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:#FAFAFA;flex-shrink:0;">E</div>
+            </div>
+            <div class="guess-row"><span class="row-num" style="color:#3A7A74;">3</span>
+              <div style="width:34px;height:34px;border-radius:6px;border:1.5px solid #1E4A46;background:#163430;flex-shrink:0;"></div>
+              <div style="width:34px;height:34px;border-radius:6px;border:1.5px solid #1E4A46;background:#163430;flex-shrink:0;"></div>
+              <div style="width:34px;height:34px;border-radius:6px;border:1.5px solid #1E4A46;background:#163430;flex-shrink:0;"></div>
+              <div style="width:34px;height:34px;border-radius:6px;border:1.5px solid #1E4A46;background:#163430;flex-shrink:0;"></div>
+              <div style="width:34px;height:34px;border-radius:6px;border:1.5px solid #1E4A46;background:#163430;flex-shrink:0;"></div>
+            </div>
+          </div>
+        </div>
+        <div style="background:#0F2422;border:1px solid #1E4A46;border-radius:10px;padding:8px 10px;">
+          <div class="section-micro" style="color:#5A9E98;margin-bottom:5px;">Active constraints</div>
+          <div style="display:flex;flex-wrap:wrap;gap:4px;">
+            <span style="padding:2px 8px;border-radius:20px;font-family:'Space Mono',monospace;font-size:8px;font-weight:700;background:#0A7C6E;color:#FAFAFA;border:1px solid #0E9E8E;">_R_NE</span>
+            <span style="padding:2px 8px;border-radius:20px;font-family:'Space Mono',monospace;font-size:8px;font-weight:700;background:#2A1F00;color:#F59E0B;border:1px solid #F59E0B;">T</span>
+            <span style="padding:2px 8px;border-radius:20px;font-family:'Space Mono',monospace;font-size:8px;font-weight:700;background:#163430;color:#5A9E98;border:1px solid #1E4A46;">S</span>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;">
+            <div class="section-micro" style="color:#5A9E98;margin-bottom:0;">Suggestions</div>
+            <div style="font-family:'Space Mono',monospace;font-size:8px;color:#FF6B35;font-weight:700;">12 remain</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;border-radius:8px;padding:7px 10px;background:#1A1108;border:1px solid #1E4A46;border-left:4px solid #FF6B35;">
+              <div><span style="font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:0.1em;color:#FF6B35;">TRONE</span><span style="font-family:'DM Sans',sans-serif;font-size:7px;color:#FF6B35;text-transform:uppercase;margin-left:4px;font-weight:700;">★ best</span></div>
+              <div style="display:flex;align-items:center;gap:4px;"><div style="width:28px;height:3px;border-radius:2px;overflow:hidden;background:#1E4A46;"><div style="width:92%;height:100%;background:#FF6B35;"></div></div><div style="font-family:'Space Mono',monospace;font-size:7px;color:#3A7A74;width:18px;text-align:right;">9.2</div></div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;border-radius:8px;padding:7px 10px;background:#0F2422;border:1px solid #1E4A46;">
+              <span style="font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:0.1em;color:#D4F0EC;">DRONE</span>
+              <div style="display:flex;align-items:center;gap:4px;"><div style="width:28px;height:3px;border-radius:2px;overflow:hidden;background:#1E4A46;"><div style="width:76%;height:100%;background:#3A7A74;"></div></div><div style="font-family:'Space Mono',monospace;font-size:7px;color:#3A7A74;width:18px;text-align:right;">7.6</div></div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:center;gap:24px;padding:8px 0 4px;border-top:1px solid #1E4A46;margin-top:4px;">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="10" cy="10" r="6.5" stroke="#FF6B35" stroke-width="2"/><line x1="15.2" y1="15.2" x2="20" y2="20" stroke="#FF6B35" stroke-width="2" stroke-linecap="round"/><text x="10" y="13.5" text-anchor="middle" font-family="monospace" font-size="7" font-weight="700" fill="#FF6B35">A</text></svg>
+            <div style="font-family:'DM Sans',sans-serif;font-size:7px;color:#FF6B35;font-weight:700;">Solve</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="2" y="16" width="3.5" height="6" rx="1" fill="#1E4A46"/><rect x="7" y="11" width="3.5" height="11" rx="1" fill="#1E4A46"/><rect x="12" y="6" width="3.5" height="16" rx="1" fill="#2A5A54"/><rect x="17" y="13" width="3.5" height="9" rx="1" fill="#1E4A46"/><line x1="1" y1="22.5" x2="23" y2="22.5" stroke="#1E4A46" stroke-width="1.2" stroke-linecap="round"/></svg>
+            <div style="font-family:'DM Sans',sans-serif;font-size:7px;color:#3A7A74;">Stats</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
+            <svg width="18" height="18" viewBox="0 0 100 100" fill="none"><path fill-rule="evenodd" d="M 42 8 Q 50 5 58 8 L 60 18 Q 66 20 71 24 L 81 20 Q 87 25 90 32 L 83 40 Q 85 46 85 50 Q 85 54 83 60 L 90 68 Q 87 75 81 80 L 71 76 Q 66 80 60 82 L 58 92 Q 50 95 42 92 L 40 82 Q 34 80 29 76 L 19 80 Q 13 75 10 68 L 17 60 Q 15 54 15 50 Q 15 46 17 40 L 10 32 Q 13 25 19 20 L 29 24 Q 34 20 40 18 Z M 50 36 A 14 14 0 1 0 50 64 A 14 14 0 1 0 50 36 Z" fill="#5A9E98"/></svg>
+            <div style="font-family:'DM Sans',sans-serif;font-size:7px;color:#5A9E98;">Settings</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ember tile legend -->
+  <div style="display:flex;flex-direction:column;gap:16px;justify-content:center;">
+    <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:#FF6B35;">Ember Tiles</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+        <div style="width:48px;height:48px;border-radius:7px;background:#163430;border:1.5px solid #1E4A46;"></div>
+        <div style="font-family:'Space Mono',monospace;font-size:8px;color:#5A9E98;">Empty</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+        <div style="width:48px;height:48px;border-radius:7px;background:#163430;border:1.5px solid #1E4A46;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:18px;font-weight:700;color:#5A9E98;">S</div>
+        <div style="font-family:'Space Mono',monospace;font-size:8px;color:#5A9E98;">Absent</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+        <div style="width:48px;height:48px;border-radius:7px;background:#2A1F00;border:2px solid #F59E0B;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:18px;font-weight:700;color:#F59E0B;">T</div>
+        <div style="font-family:'Space Mono',monospace;font-size:8px;color:#5A9E98;">Present</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+        <div style="width:48px;height:48px;border-radius:7px;background:#0A7C6E;border:2px solid #0E9E8E;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:18px;font-weight:700;color:#FAFAFA;">R</div>
+        <div style="font-family:'Space Mono',monospace;font-size:8px;color:#5A9E98;">Correct</div>
+      </div>
+    </div>
+    <div class="note" style="background:#0F2422;border-color:#1E4A46;max-width:280px;">
+      <p style="color:#5A9E98;"><strong style="color:#FF6B35;">Dark theme.</strong> Deep teal-black surfaces. Coral (#FF6B35) accent — logo, nav, best pick. Full teal (#0A7C6E) for correct tiles — the primary colour serves double duty. Amber (#F59E0B) for present. Near-white (#FAFAFA) text.</p>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- THEME: LAGOON -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="section-heading">Theme: Lagoon — Light · Dual Teal · Lemon & Peach</div>
+
+<div style="display:flex;gap:24px;flex-wrap:wrap;margin-bottom:8px;">
+  <!-- Lagoon Solve -->
+  <div class="phone-col">
+    <div class="phone-caption" style="color:#26CCC2;">Solve</div>
+    <div class="phone" style="background:#F4FEFE;border-color:#26CCC2;box-shadow:0 0 0 6px #A0E8E4,0 20px 50px rgba(38,204,194,0.2);">
+      <div class="phone-notch" style="background:#C8F0EE;"></div>
+      <div class="phone-inner">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <div class="app-logo" style="color:#0A3835;">crack<span style="color:#FFB76C;">le</span></div>
+            <div class="app-tagline" style="color:#26CCC2;">Wordle Solver</div>
+          </div>
+        </div>
+        <div>
+          <div class="section-micro" style="color:#26CCC2;">Enter a guess word</div>
+          <div style="display:flex;gap:5px;">
+            <div style="flex:1;background:#D8F5F3;border:1.5px solid #6AECE1;border-radius:8px;padding:7px 10px;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;color:#26CCC2;text-align:center;letter-spacing:0.2em;">CRANE</div>
+            <div style="background:#FFB76C;border-radius:8px;padding:7px 12px;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;color:#FFFFFF;">Add</div>
+            <div style="background:#D8F5F3;border:1.5px solid #6AECE1;border-radius:8px;padding:7px 10px;font-family:'Space Mono',monospace;font-size:9px;color:#6AECE1;">Reset</div>
+          </div>
+        </div>
+        <div>
+          <div class="section-micro" style="color:#26CCC2;">Tap a tile to cycle</div>
+          <div class="guess-grid">
+            <div class="guess-row"><span class="row-num" style="color:#6AECE1;">1</span>
+              <div style="width:34px;height:34px;border-radius:6px;border:1.5px solid #6AECE1;background:#F4FEFE;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:#26CCC2;flex-shrink:0;">S</div>
+              <div style="width:34px;height:34px;border-radius:6px;border:2px solid #1AA09A;background:#26CCC2;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:#FFFFFF;flex-shrink:0;">T</div>
+              <div style="width:34px;height:34px;border-radius:6px;border:1.5px solid #6AECE1;background:#F4FEFE;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:#26CCC2;flex-shrink:0;">A</div>
+              <div style="width:34px;height:34px;border-radius:6px;border:1.5px solid #6AECE1;background:#F4FEFE;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:#26CCC2;flex-shrink:0;">R</div>
+              <div style="width:34px;height:34px;border-radius:6px;border:2px solid #1AA09A;background:#26CCC2;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:#FFFFFF;flex-shrink:0;">E</div>
+            </div>
+            <div class="guess-row"><span class="row-num" style="color:#6AECE1;">2</span>
+              <div style="width:34px;height:34px;border-radius:6px;border:1.5px solid #6AECE1;background:#F4FEFE;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:#26CCC2;flex-shrink:0;">C</div>
+              <div style="width:34px;height:34px;border-radius:6px;border:2px solid #E8D800;background:#FFF57E;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:#5A4800;flex-shrink:0;">R</div>
+              <div style="width:34px;height:34px;border-radius:6px;border:1.5px solid #6AECE1;background:#F4FEFE;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:#26CCC2;flex-shrink:0;">A</div>
+              <div style="width:34px;height:34px;border-radius:6px;border:2px solid #E8D800;background:#FFF57E;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:#5A4800;flex-shrink:0;">N</div>
+              <div style="width:34px;height:34px;border-radius:6px;border:2px solid #E8D800;background:#FFF57E;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:#5A4800;flex-shrink:0;">E</div>
+            </div>
+            <div class="guess-row"><span class="row-num" style="color:#6AECE1;">3</span>
+              <div style="width:34px;height:34px;border-radius:6px;border:1.5px solid #A0E8E4;background:#F5FEFF;flex-shrink:0;"></div>
+              <div style="width:34px;height:34px;border-radius:6px;border:1.5px solid #A0E8E4;background:#F5FEFF;flex-shrink:0;"></div>
+              <div style="width:34px;height:34px;border-radius:6px;border:1.5px solid #A0E8E4;background:#F5FEFF;flex-shrink:0;"></div>
+              <div style="width:34px;height:34px;border-radius:6px;border:1.5px solid #A0E8E4;background:#F5FEFF;flex-shrink:0;"></div>
+              <div style="width:34px;height:34px;border-radius:6px;border:1.5px solid #A0E8E4;background:#F5FEFF;flex-shrink:0;"></div>
+            </div>
+          </div>
+        </div>
+        <div style="background:#D8F5F3;border:1.5px solid #6AECE1;border-radius:10px;padding:8px 10px;">
+          <div class="section-micro" style="color:#26CCC2;margin-bottom:5px;">Active constraints</div>
+          <div style="display:flex;flex-wrap:wrap;gap:4px;">
+            <span style="padding:2px 8px;border-radius:20px;font-family:'Space Mono',monospace;font-size:8px;font-weight:700;background:#FFF57E;color:#5A4800;border:1.5px solid #E8D800;">_R_NE</span>
+            <span style="padding:2px 8px;border-radius:20px;font-family:'Space Mono',monospace;font-size:8px;font-weight:700;background:#26CCC2;color:#FFFFFF;border:1.5px solid #1AA09A;">T</span>
+            <span style="padding:2px 8px;border-radius:20px;font-family:'Space Mono',monospace;font-size:8px;font-weight:700;background:#F4FEFE;color:#26CCC2;border:1.5px solid #6AECE1;">S</span>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;">
+            <div class="section-micro" style="color:#26CCC2;margin-bottom:0;">Suggestions</div>
+            <div style="font-family:'Space Mono',monospace;font-size:8px;color:#FFB76C;font-weight:700;">12 remain</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;border-radius:8px;padding:7px 10px;background:#FFF5E8;border:1.5px solid #6AECE1;border-left:4px solid #FFB76C;">
+              <div><span style="font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:0.1em;color:#FFB76C;">TRONE</span><span style="font-family:'DM Sans',sans-serif;font-size:7px;color:#FFB76C;text-transform:uppercase;margin-left:4px;font-weight:700;">★ best</span></div>
+              <div style="display:flex;align-items:center;gap:4px;"><div style="width:28px;height:3px;border-radius:2px;overflow:hidden;background:#A0E8E4;"><div style="width:92%;height:100%;background:#FFB76C;"></div></div><div style="font-family:'Space Mono',monospace;font-size:7px;color:#6AECE1;width:18px;text-align:right;">9.2</div></div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;border-radius:8px;padding:7px 10px;background:#D8F5F3;border:1.5px solid #6AECE1;">
+              <span style="font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:0.1em;color:#0A3835;">DRONE</span>
+              <div style="display:flex;align-items:center;gap:4px;"><div style="width:28px;height:3px;border-radius:2px;overflow:hidden;background:#A0E8E4;"><div style="width:76%;height:100%;background:#26CCC2;"></div></div><div style="font-family:'Space Mono',monospace;font-size:7px;color:#6AECE1;width:18px;text-align:right;">7.6</div></div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:center;gap:24px;padding:8px 0 4px;border-top:2px solid #6AECE1;margin-top:4px;">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="10" cy="10" r="6.5" stroke="#FFB76C" stroke-width="2"/><line x1="15.2" y1="15.2" x2="20" y2="20" stroke="#FFB76C" stroke-width="2" stroke-linecap="round"/><text x="10" y="13.5" text-anchor="middle" font-family="monospace" font-size="7" font-weight="700" fill="#FFB76C">A</text></svg>
+            <div style="font-family:'DM Sans',sans-serif;font-size:7px;color:#FFB76C;font-weight:700;">Solve</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="2" y="16" width="3.5" height="6" rx="1" fill="#A0E8E4"/><rect x="7" y="11" width="3.5" height="11" rx="1" fill="#A0E8E4"/><rect x="12" y="6" width="3.5" height="16" rx="1" fill="#B8EDEA"/><rect x="17" y="13" width="3.5" height="9" rx="1" fill="#A0E8E4"/><line x1="1" y1="22.5" x2="23" y2="22.5" stroke="#A0E8E4" stroke-width="1.2" stroke-linecap="round"/></svg>
+            <div style="font-family:'DM Sans',sans-serif;font-size:7px;color:#6AECE1;">Stats</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
+            <svg width="18" height="18" viewBox="0 0 100 100" fill="none"><path fill-rule="evenodd" d="M 42 8 Q 50 5 58 8 L 60 18 Q 66 20 71 24 L 81 20 Q 87 25 90 32 L 83 40 Q 85 46 85 50 Q 85 54 83 60 L 90 68 Q 87 75 81 80 L 71 76 Q 66 80 60 82 L 58 92 Q 50 95 42 92 L 40 82 Q 34 80 29 76 L 19 80 Q 13 75 10 68 L 17 60 Q 15 54 15 50 Q 15 46 17 40 L 10 32 Q 13 25 19 20 L 29 24 Q 34 20 40 18 Z M 50 36 A 14 14 0 1 0 50 64 A 14 14 0 1 0 50 36 Z" fill="#26CCC2"/></svg>
+            <div style="font-family:'DM Sans',sans-serif;font-size:7px;color:#26CCC2;">Settings</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lagoon tile legend -->
+  <div style="display:flex;flex-direction:column;gap:16px;justify-content:center;">
+    <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:#FFB76C;">Lagoon Tiles</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+        <div style="width:48px;height:48px;border-radius:7px;background:#F4FEFE;border:1.5px solid #A0E8E4;"></div>
+        <div style="font-family:'Space Mono',monospace;font-size:8px;color:#26CCC2;">Empty</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+        <div style="width:48px;height:48px;border-radius:7px;background:#F4FEFE;border:1.5px solid #6AECE1;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:18px;font-weight:700;color:#26CCC2;">S</div>
+        <div style="font-family:'Space Mono',monospace;font-size:8px;color:#26CCC2;">Absent</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+        <div style="width:48px;height:48px;border-radius:7px;background:#26CCC2;border:2px solid #1AA09A;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:18px;font-weight:700;color:#FFFFFF;">T</div>
+        <div style="font-family:'Space Mono',monospace;font-size:8px;color:#26CCC2;">Present</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+        <div style="width:48px;height:48px;border-radius:7px;background:#FFF57E;border:2px solid #E8D800;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:18px;font-weight:700;color:#5A4800;">R</div>
+        <div style="font-family:'Space Mono',monospace;font-size:8px;color:#26CCC2;">Correct ★ lemon</div>
+      </div>
+    </div>
+    <div class="note" style="background:#EAF9FD;border-color:#6AECE1;max-width:280px;">
+      <p style="color:#1A7A76;"><strong style="color:#FFB76C;">Light theme.</strong> Two teals: pale (#6AECE1) for surfaces, deep (#26CCC2) for present tiles and UI. Lemon (#FFF57E) for correct — bold and unexpected. Peach (#FFB76C) as accent — warm against the cool teal base.</p>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- DESIGN TOKENS -->
+<div class="section-heading">Design Tokens — All Four Themes</div>
+<div style="display:flex;gap:24px;flex-wrap:wrap;">
+
+  <!-- Default -->
+  <div style="flex:1;min-width:240px;">
+    <div style="font-family:'Space Mono',monospace;font-size:9px;color:#2DBCB0;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:10px;">Default</div>
+    <div style="background:#141210;border:1px solid #2A3248;border-radius:10px;padding:14px;font-family:'Courier New',monospace;font-size:10px;color:#889098;line-height:1.8;">
+      --bg-deep:        #141210;<br>
+      --surface:        #1E2535;<br>
+      --raised:         #2A3248;<br>
+      --border:         #3A4460;<br>
+      --accent:         #2DBCB0;<br>
+      --text-primary:   #F2EDE4;<br>
+      --text-secondary: #D8D4CC;<br>
+      --text-ui:        #B8C4DC;<br>
+      --text-muted:     #889098;<br>
+      --text-dim:       #526070;<br>
+      --correct-bg:     #243D2E;<br>
+      --correct-border: #376B4A;<br>
+      --correct-text:   #8ED9A8;<br>
+      --present-bg:     #3D3010;<br>
+      --present-border: #7A6020;<br>
+      --present-text:   #E8C060;
+    </div>
+  </div>
+
+  <!-- Daybreak -->
+  <div style="flex:1;min-width:240px;">
+    <div style="font-family:'Space Mono',monospace;font-size:9px;color:#F45B26;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:10px;">Daybreak</div>
+    <div style="background:#EAF9FD;border:1px solid #A8E8F5;border-radius:10px;padding:14px;font-family:'Courier New',monospace;font-size:10px;color:#3a7888;line-height:1.8;">
+      --bg-deep:        #E8FAFA;<br>
+      --surface:        #F4FEFE;<br>
+      --raised:         #EAF9FD;<br>
+      --border:         #A8E8F5;<br>
+      --border-strong:  #03AED2;<br>
+      --accent:         #F45B26;<br>
+      --text-primary:   #001820;<br>
+      --text-secondary: #024a68;<br>
+      --text-ui:        #03AED2;<br>
+      --text-muted:     #60C8E0;<br>
+      --correct-bg:     #00C853;<br>
+      --correct-border: #00A846;<br>
+      --correct-text:   #003319;<br>
+      --present-bg:     #F8DE22;<br>
+      --present-border: #E8C800;<br>
+      --present-text:   #5a4800;
+    </div>
+  </div>
+
+  <!-- Ember -->
+  <div style="flex:1;min-width:240px;">
+    <div style="font-family:'Space Mono',monospace;font-size:9px;color:#FF6B35;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:10px;">Ember</div>
+    <div style="background:#0F2422;border:1px solid #1E4A46;border-radius:10px;padding:14px;font-family:'Courier New',monospace;font-size:10px;color:#5A9E98;line-height:1.8;">
+      --bg-deep:        #050F0E;<br>
+      --surface:        #091614;<br>
+      --raised:         #0F2422;<br>
+      --border:         #1E4A46;<br>
+      --accent:         #FF6B35;<br>
+      --text-primary:   #FAFAFA;<br>
+      --text-secondary: #D4F0EC;<br>
+      --text-ui:        #5A9E98;<br>
+      --text-muted:     #3A7A74;<br>
+      --text-dim:       #1E4A46;<br>
+      --correct-bg:     #0A7C6E;<br>
+      --correct-border: #0E9E8E;<br>
+      --correct-text:   #FAFAFA;<br>
+      --present-bg:     #2A1F00;<br>
+      --present-border: #F59E0B;<br>
+      --present-text:   #F59E0B;
+    </div>
+  </div>
+
+  <!-- Lagoon -->
+  <div style="flex:1;min-width:240px;">
+    <div style="font-family:'Space Mono',monospace;font-size:9px;color:#FFB76C;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:10px;">Lagoon</div>
+    <div style="background:#D8F5F3;border:1px solid #6AECE1;border-radius:10px;padding:14px;font-family:'Courier New',monospace;font-size:10px;color:#1A7A76;line-height:1.8;">
+      --bg-deep:        #E8FAFA;<br>
+      --surface:        #F4FEFE;<br>
+      --raised:         #D8F5F3;<br>
+      --border-soft:    #6AECE1;<br>
+      --border-strong:  #26CCC2;<br>
+      --accent:         #FFB76C;<br>
+      --text-primary:   #0A3835;<br>
+      --text-secondary: #1A7A76;<br>
+      --text-ui:        #26CCC2;<br>
+      --text-muted:     #6AECE1;<br>
+      --correct-bg:     #FFF57E;<br>
+      --correct-border: #E8D800;<br>
+      --correct-text:   #5A4800;<br>
+      --present-bg:     #26CCC2;<br>
+      --present-border: #1AA09A;<br>
+      --present-text:   #FFFFFF;
+    </div>
+  </div>
+
+</div>
+
+
+<hr class="divider">
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- SETTINGS SCREEN — THEME PICKER                    -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="section-heading">Settings Screen — Theme Picker</div>
+
+<div style="display:flex;gap:28px;flex-wrap:wrap;justify-content:flex-start;margin-bottom:8px;">
+
+  <!-- Default settings screen -->
+  <div class="phone-col">
+    <div class="phone-caption">Default Theme</div>
+    <div class="phone">
+      <div class="phone-notch"></div>
+      <div class="phone-inner">
+
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div><div class="app-logo">crack<em>le</em></div><div class="app-tagline">Settings</div></div>
+        </div>
+
+        <!-- Theme section label -->
+        <div class="section-micro">Choose Theme</div>
+
+        <!-- Theme cards -->
+        <div style="display:flex;flex-direction:column;gap:6px;">
+
+          <!-- Default — selected -->
+          <div style="background:#2A3248;border:2px solid #2DBCB0;border-radius:10px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <!-- Mini swatch strip -->
+              <div style="display:flex;gap:3px;">
+                <div style="width:10px;height:28px;border-radius:3px;background:#141210;"></div>
+                <div style="width:10px;height:28px;border-radius:3px;background:#1E2535;"></div>
+                <div style="width:10px;height:28px;border-radius:3px;background:#2DBCB0;"></div>
+              </div>
+              <div>
+                <div style="font-family:'Space Mono',monospace;font-size:10px;font-weight:700;color:#F2EDE4;letter-spacing:0.06em;">Default</div>
+                <div style="font-family:'DM Sans',sans-serif;font-size:9px;color:#889098;margin-top:1px;">Dark · Slate Blue</div>
+              </div>
+            </div>
+            <!-- Selected tick -->
+            <div style="width:18px;height:18px;border-radius:50%;background:#2DBCB0;display:flex;align-items:center;justify-content:center;">
+              <svg width="10" height="10" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3" stroke="#141210" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+          </div>
+
+          <!-- Daybreak — not selected -->
+          <div style="background:#1E2535;border:1px solid #3A4460;border-radius:10px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="display:flex;gap:3px;">
+                <div style="width:10px;height:28px;border-radius:3px;background:#F4FEFE;border:1px solid #A8E8F5;"></div>
+                <div style="width:10px;height:28px;border-radius:3px;background:#EAF9FD;"></div>
+                <div style="width:10px;height:28px;border-radius:3px;background:#F45B26;"></div>
+              </div>
+              <div>
+                <div style="font-family:'Space Mono',monospace;font-size:10px;font-weight:700;color:#D8D4CC;letter-spacing:0.06em;">Daybreak</div>
+                <div style="font-family:'DM Sans',sans-serif;font-size:9px;color:#889098;margin-top:1px;">Light · Cyan &amp; Orange</div>
+              </div>
+            </div>
+            <div style="width:18px;height:18px;border-radius:50%;border:1.5px solid #3A4460;"></div>
+          </div>
+
+          <!-- Ember — not selected -->
+          <div style="background:#1E2535;border:1px solid #3A4460;border-radius:10px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="display:flex;gap:3px;">
+                <div style="width:10px;height:28px;border-radius:3px;background:#091614;"></div>
+                <div style="width:10px;height:28px;border-radius:3px;background:#0F2422;"></div>
+                <div style="width:10px;height:28px;border-radius:3px;background:#FF6B35;"></div>
+              </div>
+              <div>
+                <div style="font-family:'Space Mono',monospace;font-size:10px;font-weight:700;color:#D8D4CC;letter-spacing:0.06em;">Ember</div>
+                <div style="font-family:'DM Sans',sans-serif;font-size:9px;color:#889098;margin-top:1px;">Dark · Teal &amp; Coral</div>
+              </div>
+            </div>
+            <div style="width:18px;height:18px;border-radius:50%;border:1.5px solid #3A4460;"></div>
+          </div>
+
+          <!-- Lagoon — not selected -->
+          <div style="background:#1E2535;border:1px solid #3A4460;border-radius:10px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="display:flex;gap:3px;">
+                <div style="width:10px;height:28px;border-radius:3px;background:#F4FEFE;border:1px solid #6AECE1;"></div>
+                <div style="width:10px;height:28px;border-radius:3px;background:#D8F5F3;"></div>
+                <div style="width:10px;height:28px;border-radius:3px;background:#FFB76C;"></div>
+              </div>
+              <div>
+                <div style="font-family:'Space Mono',monospace;font-size:10px;font-weight:700;color:#D8D4CC;letter-spacing:0.06em;">Lagoon</div>
+                <div style="font-family:'DM Sans',sans-serif;font-size:9px;color:#889098;margin-top:1px;">Light · Dual Teal &amp; Peach</div>
+              </div>
+            </div>
+            <div style="width:18px;height:18px;border-radius:50%;border:1.5px solid #3A4460;"></div>
+          </div>
+
+        </div>
+
+        <!-- Other settings -->
+        <div class="section-micro" style="margin-top:4px;">Other</div>
+        <div style="display:flex;flex-direction:column;gap:5px;">
+          <div style="background:#1E2535;border:1px solid #3A4460;border-radius:10px;padding:9px 12px;display:flex;align-items:center;justify-content:space-between;">
+            <div>
+              <div style="font-family:'DM Sans',sans-serif;font-size:11px;color:#D8D4CC;">Hide used answers</div>
+              <div style="font-family:'DM Sans',sans-serif;font-size:9px;color:#526070;margin-top:1px;">Remove past Wordle words from suggestions</div>
+            </div>
+            <!-- Toggle off -->
+            <div style="width:32px;height:18px;border-radius:9px;background:#2A3248;border:1px solid #3A4460;position:relative;">
+              <div style="width:14px;height:14px;border-radius:50%;background:#526070;position:absolute;top:1px;left:1px;"></div>
+            </div>
+          </div>
+          <div style="background:#1E2535;border:1px solid #3A4460;border-radius:10px;padding:9px 12px;display:flex;align-items:center;justify-content:space-between;">
+            <div>
+              <div style="font-family:'DM Sans',sans-serif;font-size:11px;color:#D8D4CC;">Show score numbers</div>
+              <div style="font-family:'DM Sans',sans-serif;font-size:9px;color:#526070;margin-top:1px;">Display numeric scores on suggestions</div>
+            </div>
+            <!-- Toggle on -->
+            <div style="width:32px;height:18px;border-radius:9px;background:#2DBCB0;border:1px solid #2DBCB0;position:relative;">
+              <div style="width:14px;height:14px;border-radius:50%;background:#141210;position:absolute;top:1px;right:1px;"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="phone-bnav">
+          <div class="pnav-item">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="10" cy="10" r="6.5" stroke="#526070" stroke-width="1.8"/><line x1="15.2" y1="15.2" x2="20" y2="20" stroke="#526070" stroke-width="1.8" stroke-linecap="round"/><text x="10" y="13.5" text-anchor="middle" font-family="monospace" font-size="7" font-weight="700" fill="#526070">A</text></svg>
+            <div class="pnav-label">Solve</div>
+          </div>
+          <div class="pnav-item">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="2" y="16" width="3.5" height="6" rx="1" fill="#333348"/><rect x="7" y="11" width="3.5" height="11" rx="1" fill="#333348"/><rect x="12" y="6" width="3.5" height="16" rx="1" fill="#444458"/><rect x="17" y="13" width="3.5" height="9" rx="1" fill="#333348"/><line x1="1" y1="22.5" x2="23" y2="22.5" stroke="#3A4460" stroke-width="1.2" stroke-linecap="round"/></svg>
+            <div class="pnav-label">Stats</div>
+          </div>
+          <div class="pnav-item settings-active">
+            <svg width="18" height="18" viewBox="0 0 100 100" fill="none"><path fill-rule="evenodd" d="M 42 8 Q 50 5 58 8 L 60 18 Q 66 20 71 24 L 81 20 Q 87 25 90 32 L 83 40 Q 85 46 85 50 Q 85 54 83 60 L 90 68 Q 87 75 81 80 L 71 76 Q 66 80 60 82 L 58 92 Q 50 95 42 92 L 40 82 Q 34 80 29 76 L 19 80 Q 13 75 10 68 L 17 60 Q 15 54 15 50 Q 15 46 17 40 L 10 32 Q 13 25 19 20 L 29 24 Q 34 20 40 18 Z M 50 36 A 14 14 0 1 0 50 64 A 14 14 0 1 0 50 36 Z" fill="#B8C4DC"/></svg>
+            <div class="pnav-label">Settings</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Daybreak selecting Daybreak -->
+  <div class="phone-col">
+    <div class="phone-caption" style="color:#03AED2;">Daybreak — selecting</div>
+    <div class="phone" style="background:#F4FEFE;border-color:#26CCC2;box-shadow:0 0 0 6px #A8E8F5,0 20px 50px rgba(3,174,210,0.15);">
+      <div class="phone-notch" style="background:#D8F5FC;"></div>
+      <div class="phone-inner">
+
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <div class="app-logo" style="color:#001820;">crack<span style="color:#F45B26;">le</span></div>
+            <div class="app-tagline" style="color:#03AED2;">Settings</div>
+          </div>
+        </div>
+
+        <div class="section-micro" style="color:#03AED2;">Choose Theme</div>
+
+        <div style="display:flex;flex-direction:column;gap:6px;">
+
+          <!-- Default — not selected -->
+          <div style="background:#EAF9FD;border:1.5px solid #A8E8F5;border-radius:10px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="display:flex;gap:3px;">
+                <div style="width:10px;height:28px;border-radius:3px;background:#141210;"></div>
+                <div style="width:10px;height:28px;border-radius:3px;background:#1E2535;"></div>
+                <div style="width:10px;height:28px;border-radius:3px;background:#2DBCB0;"></div>
+              </div>
+              <div>
+                <div style="font-family:'Space Mono',monospace;font-size:10px;font-weight:700;color:#0a3835;letter-spacing:0.06em;">Default</div>
+                <div style="font-family:'DM Sans',sans-serif;font-size:9px;color:#60C8E0;margin-top:1px;">Dark · Slate Blue</div>
+              </div>
+            </div>
+            <div style="width:18px;height:18px;border-radius:50%;border:1.5px solid #A8E8F5;"></div>
+          </div>
+
+          <!-- Daybreak — selected -->
+          <div style="background:#FFF3EE;border:2px solid #F45B26;border-radius:10px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="display:flex;gap:3px;">
+                <div style="width:10px;height:28px;border-radius:3px;background:#F4FEFE;border:1px solid #A8E8F5;"></div>
+                <div style="width:10px;height:28px;border-radius:3px;background:#EAF9FD;"></div>
+                <div style="width:10px;height:28px;border-radius:3px;background:#F45B26;"></div>
+              </div>
+              <div>
+                <div style="font-family:'Space Mono',monospace;font-size:10px;font-weight:700;color:#001820;letter-spacing:0.06em;">Daybreak</div>
+                <div style="font-family:'DM Sans',sans-serif;font-size:9px;color:#60C8E0;margin-top:1px;">Light · Cyan &amp; Orange</div>
+              </div>
+            </div>
+            <div style="width:18px;height:18px;border-radius:50%;background:#F45B26;display:flex;align-items:center;justify-content:center;">
+              <svg width="10" height="10" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3" stroke="#FFFFFF" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+          </div>
+
+          <!-- Ember -->
+          <div style="background:#EAF9FD;border:1.5px solid #A8E8F5;border-radius:10px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="display:flex;gap:3px;">
+                <div style="width:10px;height:28px;border-radius:3px;background:#091614;"></div>
+                <div style="width:10px;height:28px;border-radius:3px;background:#0F2422;"></div>
+                <div style="width:10px;height:28px;border-radius:3px;background:#FF6B35;"></div>
+              </div>
+              <div>
+                <div style="font-family:'Space Mono',monospace;font-size:10px;font-weight:700;color:#0a3835;letter-spacing:0.06em;">Ember</div>
+                <div style="font-family:'DM Sans',sans-serif;font-size:9px;color:#60C8E0;margin-top:1px;">Dark · Teal &amp; Coral</div>
+              </div>
+            </div>
+            <div style="width:18px;height:18px;border-radius:50%;border:1.5px solid #A8E8F5;"></div>
+          </div>
+
+          <!-- Lagoon -->
+          <div style="background:#EAF9FD;border:1.5px solid #A8E8F5;border-radius:10px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="display:flex;gap:3px;">
+                <div style="width:10px;height:28px;border-radius:3px;background:#F4FEFE;border:1px solid #6AECE1;"></div>
+                <div style="width:10px;height:28px;border-radius:3px;background:#D8F5F3;"></div>
+                <div style="width:10px;height:28px;border-radius:3px;background:#FFB76C;"></div>
+              </div>
+              <div>
+                <div style="font-family:'Space Mono',monospace;font-size:10px;font-weight:700;color:#0a3835;letter-spacing:0.06em;">Lagoon</div>
+                <div style="font-family:'DM Sans',sans-serif;font-size:9px;color:#60C8E0;margin-top:1px;">Light · Dual Teal &amp; Peach</div>
+              </div>
+            </div>
+            <div style="width:18px;height:18px;border-radius:50%;border:1.5px solid #A8E8F5;"></div>
+          </div>
+
+        </div>
+
+        <div class="section-micro" style="color:#03AED2;margin-top:4px;">Other</div>
+        <div style="display:flex;flex-direction:column;gap:5px;">
+          <div style="background:#EAF9FD;border:1.5px solid #A8E8F5;border-radius:10px;padding:9px 12px;display:flex;align-items:center;justify-content:space-between;">
+            <div>
+              <div style="font-family:'DM Sans',sans-serif;font-size:11px;color:#001820;">Hide used answers</div>
+              <div style="font-family:'DM Sans',sans-serif;font-size:9px;color:#60C8E0;margin-top:1px;">Remove past Wordle words from suggestions</div>
+            </div>
+            <div style="width:32px;height:18px;border-radius:9px;background:#A8E8F5;border:1px solid #A8E8F5;position:relative;">
+              <div style="width:14px;height:14px;border-radius:50%;background:#60C8E0;position:absolute;top:1px;left:1px;"></div>
+            </div>
+          </div>
+          <div style="background:#EAF9FD;border:1.5px solid #A8E8F5;border-radius:10px;padding:9px 12px;display:flex;align-items:center;justify-content:space-between;">
+            <div>
+              <div style="font-family:'DM Sans',sans-serif;font-size:11px;color:#001820;">Show score numbers</div>
+              <div style="font-family:'DM Sans',sans-serif;font-size:9px;color:#60C8E0;margin-top:1px;">Display numeric scores on suggestions</div>
+            </div>
+            <div style="width:32px;height:18px;border-radius:9px;background:#F45B26;border:1px solid #F45B26;position:relative;">
+              <div style="width:14px;height:14px;border-radius:50%;background:#FFFFFF;position:absolute;top:1px;right:1px;"></div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;justify-content:center;gap:24px;padding:8px 0 4px;border-top:2px solid #03AED2;margin-top:4px;">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="10" cy="10" r="6.5" stroke="#A8E8F5" stroke-width="2"/><line x1="15.2" y1="15.2" x2="20" y2="20" stroke="#A8E8F5" stroke-width="2" stroke-linecap="round"/><text x="10" y="13.5" text-anchor="middle" font-family="monospace" font-size="7" font-weight="700" fill="#A8E8F5">A</text></svg>
+            <div style="font-family:'DM Sans',sans-serif;font-size:7px;color:#A8E8F5;">Solve</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="2" y="16" width="3.5" height="6" rx="1" fill="#A8E8F5"/><rect x="7" y="11" width="3.5" height="11" rx="1" fill="#A8E8F5"/><rect x="12" y="6" width="3.5" height="16" rx="1" fill="#C8F0F8"/><rect x="17" y="13" width="3.5" height="9" rx="1" fill="#A8E8F5"/><line x1="1" y1="22.5" x2="23" y2="22.5" stroke="#A8E8F5" stroke-width="1.2" stroke-linecap="round"/></svg>
+            <div style="font-family:'DM Sans',sans-serif;font-size:7px;color:#A8E8F5;">Stats</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
+            <svg width="18" height="18" viewBox="0 0 100 100" fill="none"><path fill-rule="evenodd" d="M 42 8 Q 50 5 58 8 L 60 18 Q 66 20 71 24 L 81 20 Q 87 25 90 32 L 83 40 Q 85 46 85 50 Q 85 54 83 60 L 90 68 Q 87 75 81 80 L 71 76 Q 66 80 60 82 L 58 92 Q 50 95 42 92 L 40 82 Q 34 80 29 76 L 19 80 Q 13 75 10 68 L 17 60 Q 15 54 15 50 Q 15 46 17 40 L 10 32 Q 13 25 19 20 L 29 24 Q 34 20 40 18 Z M 50 36 A 14 14 0 1 0 50 64 A 14 14 0 1 0 50 36 Z" fill="#F45B26"/></svg>
+            <div style="font-family:'DM Sans',sans-serif;font-size:7px;color:#F45B26;font-weight:700;">Settings</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Design notes -->
+  <div style="display:flex;flex-direction:column;gap:12px;justify-content:flex-start;max-width:280px;margin-top:8px;">
+    <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:#2DBCB0;">Design Notes</div>
+    <div class="note">
+      <p><strong style="color:#2DBCB0;">Theme card anatomy.</strong> Three-colour swatch strip (BG, Surface, Accent) gives instant visual identity. Name and description. Radio circle — filled with accent tick when selected, empty otherwise.</p>
+    </div>
+    <div class="note">
+      <p><strong style="color:#2DBCB0;">Selected state.</strong> Card border switches to the theme's accent colour. Radio fills with that accent. Unselected cards recede to surface colour.</p>
+    </div>
+    <div class="note">
+      <p><strong style="color:#2DBCB0;">Settings screen inherits the active theme.</strong> Both mockups shown here use the theme they're selecting — the screen itself is a live preview.</p>
+    </div>
+    <div class="note">
+      <p><strong style="color:#2DBCB0;">Two other settings shown.</strong> Hide used answers (default off) and Show score numbers (default on). Both use inline toggle switches in the theme's accent colour.</p>
+    </div>
+    <div class="note">
+      <p><strong style="color:#2DBCB0;">Gear icon — Option 1.</strong> 6-tooth chunky rounded gear, chosen over the previous spoke-style icon. Active state uses --text-ui colour. Inactive uses --text-dim.</p>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

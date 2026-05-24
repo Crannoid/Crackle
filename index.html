@@ -182,7 +182,7 @@ body {
 .sugg-section { display: flex; flex-direction: column; flex: 1; min-height: 0; }
 .sugg-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 7px; flex-shrink: 0; }
 .sugg-count { font-family: var(--font-mono); font-size: 8px; color: var(--accent); }
-.sugg-list { display: flex; flex-direction: column; gap: 4px; overflow-y: auto; flex: 1; padding-bottom: 4px; }
+.sugg-list { display: flex; flex-direction: column; gap: 4px; overflow-y: auto; flex: 1; padding-bottom: 4px; max-height: 370px; min-height: 0; }
 .sugg-list::-webkit-scrollbar { width: 3px; }
 .sugg-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
@@ -195,6 +195,9 @@ body {
 .s-bar { width: 32px; height: 3px; border-radius: 2px; background: var(--border); overflow: hidden; }
 .s-fill { height: 100%; border-radius: 2px; }
 .s-num { font-family: var(--font-mono); font-size: 7px; width: 20px; text-align: right; color: var(--text-muted); }
+.sugg-word.used { color: var(--text-muted); text-decoration: line-through; }
+.sugg-item.used { opacity: 0.6; background: rgba(0,0,0,0.2); }
+.sugg-used-tag { font-family: var(--font-body); font-size: 7px; color: var(--text-muted); font-style: italic; letter-spacing: 0.06em; }
 
 /* Empty state */
 .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; gap: 10px; text-align: center; padding: 10px 0; }
@@ -345,11 +348,13 @@ body {
 
 <script>
 // ═══════════════════════════════════════════════════
-// WORD LIST — loaded from remote at startup
+// WORD LISTS — loaded from remote at startup
 // ═══════════════════════════════════════════════════
-const WORD_LIST_URL = 'https://raw.githubusercontent.com/tabatkins/wordle-list/main/words';
-let WORDS = [];
-let appReady = false;
+const WORD_LIST_URL  = 'https://raw.githubusercontent.com/tabatkins/wordle-list/main/words';
+const PREV_WORDS_URL = 'https://eagerterrier.github.io/previous-wordle-words/alphabetical.txt';
+let WORDS      = [];
+let USED_WORDS = new Set();
+let appReady   = false;
 
 async function loadWords() {
   try {
@@ -363,6 +368,20 @@ async function loadWords() {
   } catch (e) {
     console.error('Failed to load word list:', e);
     document.getElementById('loading-msg').textContent = 'Could not load word list. Check your connection.';
+  }
+}
+
+async function loadPreviousWords() {
+  try {
+    const res  = await fetch(PREV_WORDS_URL);
+    const text = await res.text();
+    const words = text.split('\n')
+      .map(w => w.trim().toLowerCase())
+      .filter(w => w.length === 5 && /^[a-z]+$/.test(w));
+    USED_WORDS = new Set(words);
+    console.log('Previous words loaded:', USED_WORDS.size, 'words');
+  } catch (e) {
+    console.warn('Previous words list unavailable — continuing without it:', e);
   }
 }
 
@@ -615,7 +634,7 @@ function renderSuggestions() {
 
   const constraints = buildConstraints();
   const valid       = filterWords(constraints);
-  const top         = rankWords(valid, 20);
+  const top         = rankWords(valid, 20); // 20 total — ~10 visible, ~10 via scroll
   const maxScore    = top.length > 0 ? top[0].score : 1;
 
   // Word count text
@@ -636,17 +655,19 @@ function renderSuggestions() {
 
   top.forEach((item, idx) => {
     const isBest = idx === 0;
+    const isUsed = USED_WORDS.has(item.word);
     const pct    = Math.round((item.score / maxScore) * 100);
     const scoreDisplay = (item.score / maxScore * 9.9).toFixed(1);
     const el = document.createElement('div');
-    el.className = 'sugg-item' + (isBest ? ' best' : '');
+    el.className = 'sugg-item' + (isBest ? ' best' : '') + (isUsed ? ' used' : '');
     el.innerHTML = `
-      <div style="display:flex;align-items:baseline;">
-        <span class="sugg-word${isBest ? ' best' : ''}">${item.word.toUpperCase()}</span>
+      <div style="display:flex;align-items:baseline;gap:4px;">
+        <span class="sugg-word${isBest ? ' best' : ''}${isUsed ? ' used' : ''}">${item.word.toUpperCase()}</span>
         ${isBest ? '<span class="sugg-badge">★ best</span>' : ''}
+        ${isUsed ? '<span class="sugg-used-tag">used</span>' : ''}
       </div>
       <div class="sugg-right">
-        <div class="s-bar"><div class="s-fill" style="width:${pct}%;background:${isBest ? 'var(--accent)' : '#686884'};"></div></div>
+        <div class="s-bar"><div class="s-fill" style="width:${pct}%;background:${isUsed ? '#484860' : isBest ? 'var(--accent)' : '#686884'};"></div></div>
         <div class="s-num">${scoreDisplay}</div>
       </div>`;
     list.appendChild(el);
@@ -657,6 +678,11 @@ function renderSuggestions() {
     more.style.cssText = 'padding:8px;text-align:center;font-family:var(--font-mono);font-size:8px;color:var(--text-dim);';
     more.textContent = `+ ${valid.length - 20} more — add constraints to narrow down`;
     list.appendChild(more);
+  } else if (valid.length > 10) {
+    const hint = document.createElement('div');
+    hint.style.cssText = 'padding:6px;text-align:center;font-family:var(--font-mono);font-size:8px;color:var(--text-dim);';
+    hint.textContent = '↓ scroll for more';
+    list.appendChild(hint);
   }
 }
 
@@ -808,11 +834,11 @@ function logResult(solved) {
 }
 
 // ═══════════════════════════════════════════════════
-// STARTUP
+// STARTUP — load both lists in parallel
 // ═══════════════════════════════════════════════════
 (async () => {
   renderGrid();
-  await loadWords();
+  await Promise.all([loadWords(), loadPreviousWords()]);
   renderSuggestions();
 })();
 </script>

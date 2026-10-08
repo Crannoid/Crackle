@@ -108,6 +108,7 @@ body {
 .btn-add:active { opacity: 0.8; }
 .btn-reset { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-btn); padding: 9px 12px; font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); cursor: pointer; white-space: nowrap; flex-shrink: 0; }
 .btn-reset:active { opacity: 0.7; }
+.btn-reset:disabled { opacity: 0.4; cursor: default; }
 
 /* ── GUESS GRID ────────────────────────────────── */
 .guess-grid-wrap { flex-shrink: 0; }
@@ -280,6 +281,7 @@ body {
             placeholder="5 letters, then Add"
             autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false">
           <button class="btn-add" id="add-btn">Add</button>
+          <button class="btn-reset" id="undo-btn" title="Remove the last guess">Undo</button>
           <button class="btn-reset" id="clear-btn">Reset</button>
         </div>
       </div>
@@ -681,6 +683,7 @@ window.showScreen = function(name) {
 function renderGrid() {
   const grid = document.getElementById('guess-grid');
   grid.innerHTML = '';
+  document.getElementById('undo-btn').disabled = guesses.length === 0;
   for (let r = 0; r < MAX_ROWS; r++) {
     const row = document.createElement('div');
     row.className = 'guess-row';
@@ -756,8 +759,17 @@ function addWord(word) {
 }
 
 // ═══════════════════════════════════════════════════
-// RESET
+// UNDO / RESET
 // ═══════════════════════════════════════════════════
+document.getElementById('undo-btn').addEventListener('click', () => {
+  if (guesses.length === 0) return;
+  guesses.pop();
+  saveGame();
+  renderGrid();
+  renderConstraints();
+  renderSuggestions();
+});
+
 document.getElementById('clear-btn').addEventListener('click', () => {
   guesses = [];
   saveGame();

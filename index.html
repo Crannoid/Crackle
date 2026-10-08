@@ -159,6 +159,7 @@ body {
 .sugg-word.used { color: var(--text-muted); text-decoration: line-through; }
 .sugg-item.used { opacity: 0.6; }
 .sugg-used-tag { font-family: var(--font-body); font-size: 7px; color: var(--text-muted); font-style: italic; letter-spacing: 0.06em; }
+.sugg-probe-tag { font-family: var(--font-body); font-size: 7px; color: var(--present-text); letter-spacing: 0.08em; text-transform: uppercase; }
 
 /* Empty state */
 .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; gap: 10px; text-align: center; padding: 10px 0; }
@@ -390,7 +391,7 @@ body {
 </div>
 
 <script type="module">
-import { buildConstraints, filterWords, rankWords } from './solver.js';
+import { buildConstraints, filterWords, rankGuesses, bestOpener } from './solver.js';
 
 // ═══════════════════════════════════════════════════
 // THEMES
@@ -595,6 +596,7 @@ const PREV_WORDS_URL = 'data/used.txt'     // past answers snapshot (see data/RE
 let WORDS      = [];
 let USED_WORDS = new Set();
 let appReady   = false;
+let OPENER     = 'stare';   // replaced by the computed best opener once the word list loads
 
 async function loadWords() {
   try {
@@ -781,11 +783,7 @@ function renderSuggestions() {
         <div style="margin-top:8px;">
           <div class="starter-label">Try starting with</div>
           <div class="starter-tiles">
-            <div class="starter-tile">S</div>
-            <div class="starter-tile">T</div>
-            <div class="starter-tile">A</div>
-            <div class="starter-tile">R</div>
-            <div class="starter-tile">E</div>
+            ${OPENER.split('').map(l => `<div class="starter-tile">${l.toUpperCase()}</div>`).join('')}
           </div>
         </div>
       </div>`;
@@ -800,8 +798,9 @@ function renderSuggestions() {
     valid = valid.filter(w => !USED_WORDS.has(w));
   }
 
-  const top      = rankWords(valid, 20);
-  const maxScore = top.length > 0 ? top[0].score : 1;
+  // Suggestions may include 'probe' words that are not possible answers but split the field best
+  const top      = rankGuesses(valid, WORDS, 20);
+  const bestScore = top.length > 0 ? top[0].score : 0;
 
   if (valid.length === 0) {
     countEl.textContent = 'No matches — check colours';
@@ -820,9 +819,12 @@ function renderSuggestions() {
 
   top.forEach((item, idx) => {
     const isBest  = idx === 0;
-    const isUsed  = !settings.hideUsed && USED_WORDS.has(item.word);
-    const pct     = Math.round((item.score / maxScore) * 100);
-    const scoreTxt = (item.score / maxScore * 9.9).toFixed(1);
+    const isProbe = !item.isCandidate;
+    const isUsed  = !isProbe && !settings.hideUsed && USED_WORDS.has(item.word);
+    // score = expected words left (lower is better); show it as quality relative to the best, 9.9 = best
+    const quality = (1 + bestScore) / (1 + item.score);
+    const pct     = Math.round(quality * 100);
+    const scoreTxt = (quality * 9.9).toFixed(1);
     const el = document.createElement('div');
     el.className = 'sugg-item' + (isBest ? ' best' : '') + (isUsed ? ' used' : '');
     const scoreNumHTML = settings.showScores
@@ -832,6 +834,7 @@ function renderSuggestions() {
         <span class="sugg-word${isBest?' best':''}${isUsed?' used':''}">${item.word.toUpperCase()}</span>
         ${isBest ? '<span class="sugg-badge">★ best</span>' : ''}
         ${isUsed ? '<span class="sugg-used-tag">used</span>' : ''}
+        ${isProbe ? '<span class="sugg-probe-tag" title="Not a possible answer, but it narrows the field the most">probe</span>' : ''}
       </div>
       <div class="sugg-right">
         <div class="s-bar"><div class="s-fill" style="width:${pct}%;background:${isUsed?'#484860':isBest?'var(--accent)':'#686884'};"></div></div>
@@ -1004,6 +1007,7 @@ function logResult(solved) {
   applyToggleUI();
   renderGrid();
   await Promise.all([loadWords(), loadPreviousWords()]);
+  if (appReady) OPENER = bestOpener(WORDS);
   renderSuggestions();
 })();
 </script>

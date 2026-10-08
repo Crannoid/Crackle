@@ -116,33 +116,94 @@ function filterWords(constraints, words) {
     });
 }
 
+const POW3 = [1, 3, 9, 27, 81];
+const ALL_GREEN = 242;            // pattern code for 5 x correct
+const left = new Int8Array(26);   // scratch buffer: unmatched answer letters
+
 /**
- * Ranks remaining words by letter frequency.
- * More than 50 words left: overall frequency (explore). 50 or fewer: positional (narrow).
- *
- * @returns {Array} [{ word, score }] best first, at most n long
+ * Wordle feedback for a guess against an answer, packed into one number
+ * (base 3, position i has weight 3^i: 0 absent, 1 present, 2 correct).
+ * Follows the official duplicate-letter rules. Allocation-free because the
+ * ranker calls it millions of times.
  */
-function rankWords(validWords, n = validWords.length) {
-    if (validWords.length === 0) return [];
-    let scored;
-    if (validWords.length <= 50) {
-        const pos = [{},{},{},{},{}];
-        for (const w of validWords) {
-            for (let i = 0; i < 5; i++) pos[i][w[i]] = (pos[i][w[i]] || 0) + 1;
-        }
-        scored = validWords.map(w => ({
-            word: w, score: w.split('').reduce((s, l, i) => s + (pos[i][l] || 0), 0)
-        }));
-    } else {
-        const freq = {};
-        for (const w of validWords) {
-            for (const l of new Set(w)) freq[l] = (freq[l] || 0) + 1;
-        }
-        scored = validWords.map(w => ({
-            word: w, score: [...new Set(w)].reduce((s, l) => s + (freq[l] || 0), 0)
-        }));
+function patternCode(guess, answer) {
+    left.fill(0);
+    let code = 0, green = 0;
+    for (let i = 0; i < 5; i++) {
+        const g = guess.charCodeAt(i), a = answer.charCodeAt(i);
+        if (g === a) { code += 2 * POW3[i]; green |= 1 << i; }
+        else left[a - 97]++;
     }
-    return scored.sort((a, b) => b.score - a.score).slice(0, n);
+    for (let i = 0; i < 5; i++) {
+        if (green & (1 << i)) continue;
+        const c = guess.charCodeAt(i) - 97;
+        if (left[c] > 0) { left[c]--; code += POW3[i]; }
+    }
+    return code;
 }
 
-export { buildConstraints, filterWords, rankWords };
+/** Feedback as ['absent' | 'present' | 'correct' x5], the same shape the app stores. */
+function scoreGuess(guess, answer) {
+    const names = ['absent', 'present', 'correct'];
+    let code = patternCode(guess, answer);
+    const states = [];
+    for (let i = 0; i < 5; i++) { states.push(names[code % 3]); code = Math.floor(code / 3); }
+    return states;
+}
+
+/**
+ * Ranks guesses by how much they are expected to narrow the field.
+ *
+ * For each possible guess, play it against every remaining candidate and group
+ * the candidates by the feedback they would produce. If the answer is equally
+ * likely to be any candidate, the expected number of candidates left after the
+ * guess is sum(group size squared) / N. Lower is better. A guess that is itself
+ * a candidate also wins outright 1 time in N, so its all-green group counts as
+ * solved (zero left).
+ *
+ * Guesses may come from `pool` (any known Wordle word), not only the candidates,
+ * so a "probe" word that is not a possible answer can win when it splits the
+ * candidates better than any real answer would. With 2 or fewer candidates a
+ * probe cannot help, so only candidates are considered.
+ *
+ * @param {Array}  candidates - words still possible
+ * @param {Array}  pool       - words allowed as guesses
+ * @param {number} n          - how many to return
+ * @returns {Array} [{ word, score, isCandidate }] best first; score = expected words left
+ */
+function rankGuesses(candidates, pool, n = 20) {
+    const N = candidates.length;
+    if (N === 0) return [];
+    if (N === 1) return [{ word: candidates[0], score: 0, isCandidate: true }];
+
+    const candidateSet = new Set(candidates);
+    let guesses = candidates;
+    if (N > 2) {
+        const poolSet = new Set(pool);
+        guesses = pool.concat(candidates.filter(w => !poolSet.has(w)));
+    }
+
+    const buckets = new Int32Array(ALL_GREEN + 1);
+    const results = [];
+    for (const guess of guesses) {
+        buckets.fill(0);
+        for (let j = 0; j < N; j++) buckets[patternCode(guess, candidates[j])]++;
+        let sum = 0;
+        for (let k = 0; k < ALL_GREEN; k++) sum += buckets[k] * buckets[k];
+        if (!candidateSet.has(guess)) sum += buckets[ALL_GREEN] * buckets[ALL_GREEN];
+        results.push({ word: guess, score: sum / N, isCandidate: candidateSet.has(guess) });
+    }
+
+    results.sort((x, y) =>
+        x.score - y.score ||
+        (y.isCandidate - x.isCandidate) ||
+        (x.word < y.word ? -1 : 1));
+    return results.slice(0, n);
+}
+
+/** Best first guess for a fresh game: the top-ranked word with every word still possible. */
+function bestOpener(words) {
+    return rankGuesses(words, words, 1)[0].word;
+}
+
+export { buildConstraints, filterWords, patternCode, scoreGuess, rankGuesses, bestOpener };

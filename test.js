@@ -3,11 +3,10 @@
 // Tests solver.js (the same module the app loads) without needing a browser or UI.
 
 import { loadWordList, getWordList } from './words.js';
-import { filterWords as filterIn, buildConstraints, rankWords } from './solver.js';
+import { filterWords as filterIn, buildConstraints, patternCode, scoreGuess, rankGuesses, bestOpener } from './solver.js';
 
 // Tests filter the loaded word list, so bind it once
 const filterWords = constraints => filterIn(constraints, getWordList());
-const getTopSuggestions = (validWords, n) => rankWords(validWords, n);
 
 // ─────────────────────────────────────────
 // Simple test helper — no framework needed
@@ -242,47 +241,103 @@ async function runTests() {
     // ── Ranker Tests ─────────────────────
     console.log('\n🏆 Ranker Tests');
 
-    test('Ranker returns results in descending score order', () => {
-        const validWords = filterWords({
-            greens: [null, null, null, null, null],
-            yellows: {},
-            greys: []
-        });
-        const suggestions = getTopSuggestions(validWords, 10);
+    const startingConstraints = { greens: [null, null, null, null, null], yellows: {}, greys: [] };
+    // Reference Wordle scoring, written independently of solver.js
+    const referenceScore = (guess, ans) => {
+        const s = Array(5).fill('absent'), left = {};
+        for (let i = 0; i < 5; i++) {
+            if (guess[i] === ans[i]) s[i] = 'correct'; else left[ans[i]] = (left[ans[i]] || 0) + 1;
+        }
+        for (let i = 0; i < 5; i++) {
+            if (s[i] !== 'absent') continue;
+            if (left[guess[i]] > 0) { s[i] = 'present'; left[guess[i]]--; }
+        }
+        return s;
+    };
+
+    test('scoreGuess matches reference Wordle scoring (2,000 random pairs, many with repeated letters)', () => {
+        let seed = 5;
+        const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+        const pick = () => words[Math.floor(rnd() * words.length)];
+        for (let t = 0; t < 2000; t++) {
+            const g = pick(), a = pick();
+            if (scoreGuess(g, a).join() !== referenceScore(g, a).join()) {
+                throw new Error(`${g} vs ${a}: got ${scoreGuess(g, a)}, expected ${referenceScore(g, a)}`);
+            }
+        }
+        expect(patternCode('crane', 'crane')).toBe(242);
+    });
+
+    test('Ranker returns results best first (lowest expected words left)', () => {
+        const suggestions = rankGuesses(filterWords(startingConstraints), words, 10);
         for (let i = 0; i < suggestions.length - 1; i++) {
-            if (suggestions[i].score < suggestions[i + 1].score) {
+            if (suggestions[i].score > suggestions[i + 1].score) {
                 throw new Error(`Score out of order at position ${i}`);
             }
         }
-        expect(true).toBeTrue();
+        expect(suggestions.length).toBe(10);
     });
 
     test('Ranker returns no more than requested number of results', () => {
-        const validWords = filterWords({
-            greens: [null, null, null, null, null],
-            yellows: {},
-            greys: []
-        });
-        const suggestions = getTopSuggestions(validWords, 5);
+        const suggestions = rankGuesses(filterWords(startingConstraints), words, 5);
         expect(suggestions.length).toBeLessThan(6);
     });
 
-    test('Ranker returns word and score for each suggestion', () => {
-        const validWords = filterWords({
-            greens: [null, null, null, null, null],
-            yellows: {},
-            greys: []
-        });
-        const suggestions = getTopSuggestions(validWords, 3);
-        const allHaveWordAndScore = suggestions.every(s =>
-            typeof s.word === 'string' && typeof s.score === 'number'
+    test('Ranker returns word, score and isCandidate for each suggestion', () => {
+        const suggestions = rankGuesses(filterWords(startingConstraints), words, 3);
+        const ok = suggestions.every(s =>
+            typeof s.word === 'string' && typeof s.score === 'number' && typeof s.isCandidate === 'boolean'
         );
-        expect(allHaveWordAndScore).toBeTrue();
+        expect(ok).toBeTrue();
     });
 
-    test('Ranker handles empty word list gracefully', () => {
-        const suggestions = getTopSuggestions([], 10);
-        expect(suggestions.length).toBe(0);
+    test('Ranker handles empty and single-word candidate lists', () => {
+        expect(rankGuesses([], words, 10).length).toBe(0);
+        const one = rankGuesses(['crane'], words, 10);
+        expect(one.length).toBe(1);
+        expect(one[0].word).toBe('crane');
+    });
+
+    test('With two words left only those words are suggested', () => {
+        const suggestions = rankGuesses(['batch', 'catch'], words, 10);
+        expect(suggestions.length).toBe(2);
+        expect(suggestions.every(s => s.isCandidate)).toBeTrue();
+    });
+
+    test('A probe word beats every real answer for the _ATCH family', () => {
+        const candidates = ['batch', 'catch', 'hatch', 'latch', 'match', 'patch', 'watch'];
+        const ranked = rankGuesses(candidates, words, words.length);
+        expect(ranked[0].isCandidate).toBe(false);
+        const bestCandidate = ranked.find(s => s.isCandidate);
+        expect(ranked[0].score).toBeLessThan(bestCandidate.score);
+    });
+
+    test('Opener is a known word and the top-ranked guess for a fresh game', () => {
+        const opener = bestOpener(words);
+        expect(words).toContain(opener);
+        expect(rankGuesses(words, words, 1)[0].word).toBe(opener);
+    });
+
+    test('Simulation: following the top suggestion solves 60 random games within 6 guesses', () => {
+        let seed = 21;
+        const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+        const opener = bestOpener(words);
+        let total = 0;
+        for (let t = 0; t < 60; t++) {
+            const ans = words[Math.floor(rnd() * words.length)];
+            const guesses = [];
+            let solved = false;
+            while (guesses.length < 6) {
+                const guess = guesses.length === 0
+                    ? opener
+                    : rankGuesses(filterIn(buildConstraints(guesses), words), words, 1)[0].word;
+                guesses.push({ word: guess, states: referenceScore(guess, ans) });
+                if (guess === ans) { solved = true; break; }
+            }
+            if (!solved) throw new Error(`Failed to solve ${ans}: ${guesses.map(g => g.word)}`);
+            total += guesses.length;
+        }
+        expect(total / 60).toBeLessThan(4);
     });
 
     // ── Real World Test ──────────────────

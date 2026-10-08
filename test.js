@@ -2,8 +2,8 @@
 // Run with: npm test
 // Tests solver.js (the same module the app loads) without needing a browser or UI.
 
-import { loadWordList, getWordList } from './words.js';
-import { filterWords as filterIn, buildConstraints, patternCode, scoreGuess, rankGuesses, bestOpener } from './solver.js';
+import { loadWordList, getWordList, loadValidWords, getValidWords } from './words.js';
+import { filterWords as filterIn, buildConstraints, findCandidates, patternCode, scoreGuess, rankGuesses, bestOpener } from './solver.js';
 
 // Tests filter the loaded word list, so bind it once
 const filterWords = constraints => filterIn(constraints, getWordList());
@@ -70,7 +70,9 @@ async function runTests() {
 
     console.log('\n🔤 Loading word list...\n');
     await loadWordList();
+    await loadValidWords();
     const words = getWordList();
+    const validWords = getValidWords();
 
     // ── Word List Tests ──────────────────
     console.log('📋 Word List Tests');
@@ -414,6 +416,46 @@ test('CHU start, excluding A,I,R,O,M,P,E,S,T,L returns valid words', () => {
             const truth = words.filter(w => guesses.every(g => score(g.word, w) === g.states.join())).sort().join();
             if (got !== truth) throw new Error(`answer ${ans}, guesses ${guesses.map(g => g.word)}: filter and real Wordle feedback disagree`);
         }
+    });
+
+    // ── Fallback To All Valid Words ──────
+    console.log('\n🔎 Fallback Tests');
+
+    test('Valid-word list contains every known answer', () => {
+        const valid = new Set(validWords);
+        const missing = words.filter(w => !valid.has(w));
+        expect(missing.length).toBe(0);
+        expect(validWords.length).toBeGreaterThan(words.length);
+    });
+
+    test('When no known answer fits, falls back to valid words (STARE / STEER case)', () => {
+        const guesses = [
+            { word: 'stare', states: ['correct','correct','absent','present','present'] },
+            { word: 'steer', states: ['correct','correct','absent','correct','present'] }
+        ];
+        const found = findCandidates(buildConstraints(guesses), words, validWords);
+        expect(filterIn(buildConstraints(guesses), words).length).toBe(0);
+        expect(found.source).toBe('valid');
+        expect(found.candidates).toContain('strew');
+        expect(found.candidates).toContain('strep');
+        expect(found.candidates.length).toBe(2);
+    });
+
+    test('Known answers are used when some fit, and extra valid words are only counted', () => {
+        const guesses = [{ word: 'crane', states: ['correct','absent','absent','absent','absent'] }];
+        const found = findCandidates(buildConstraints(guesses), words, validWords);
+        expect(found.source).toBe('answers');
+        expect(found.candidates.every(w => words.includes(w))).toBeTrue();
+        expect(found.others).toBeGreaterThan(0);
+    });
+
+    test('Fallback is off when no valid-word list is given', () => {
+        const guesses = [
+            { word: 'stare', states: ['correct','correct','absent','present','present'] },
+            { word: 'steer', states: ['correct','correct','absent','correct','present'] }
+        ];
+        const found = findCandidates(buildConstraints(guesses), words);
+        expect(found.candidates.length).toBe(0);
     });
 
     // ── Summary ──────────────────────────

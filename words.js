@@ -1,6 +1,6 @@
 // words.js — Word List Loader for Wordle Solver
 
-// Loads the Wordle answer list from data/answers.txt (the original 2,315 answers).
+// Loads the Wordle word lists from data/ (answers.txt, valid-words.txt).
 // Uses fs under Node (tests); the browser app has its own loader in index.html.
 
 const WORD_LIST_URL = new URL('./data/answers.txt', import.meta.url);
@@ -34,4 +34,19 @@ function getWordList() {
     return wordList;
 }
 
-export { loadWordList, getWordList };
+let validList = [];
+
+// Every word Wordle accepts as a guess (used only as a fallback when no known answer fits)
+async function loadValidWords() {
+    const { readFile } = await import('node:fs/promises');
+    const text = await readFile(new URL('./data/valid-words.txt', import.meta.url), 'utf8');
+    validList = text.split(/\r?\n/).map(x => x.trim().toLowerCase()).filter(x => /^[a-z]{5}$/.test(x));
+    return validList;
+}
+
+function getValidWords() {
+    if (validList.length === 0) throw new Error('Valid words not loaded yet. Call loadValidWords() first.');
+    return validList;
+}
+
+export { loadWordList, getWordList, loadValidWords, getValidWords };

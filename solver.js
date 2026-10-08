@@ -116,6 +116,30 @@ function filterWords(constraints, words) {
     });
 }
 
+/**
+ * Works out which words are still possible.
+ *
+ * Normally that is the known Wordle answers that fit the constraints. But the
+ * NYT's answers are not all in our list, so when no known answer fits, fall
+ * back to every valid word that does.
+ *
+ * @param {Object} constraints - from buildConstraints()
+ * @param {Array}  answers     - known Wordle answers
+ * @param {Array}  validWords  - every word Wordle accepts (should include the answers)
+ * @returns {{ candidates: Array, source: 'answers'|'valid', others: number }}
+ *          source 'valid' means no known answer fits and candidates are plain valid words.
+ *          others is how many extra valid (non-answer) words also fit, when source is 'answers'.
+ */
+function findCandidates(constraints, answers, validWords = []) {
+    const known = filterWords(constraints, answers);
+    const fromValid = validWords.length ? filterWords(constraints, validWords) : [];
+    if (known.length === 0 && fromValid.length > 0) {
+        return { candidates: fromValid, source: 'valid', others: 0 };
+    }
+    const knownSet = new Set(known);
+    return { candidates: known, source: 'answers', others: fromValid.filter(w => !knownSet.has(w)).length };
+}
+
 const POW3 = [1, 3, 9, 27, 81];
 const ALL_GREEN = 242;            // pattern code for 5 x correct
 const left = new Int8Array(26);   // scratch buffer: unmatched answer letters
@@ -206,4 +230,4 @@ function bestOpener(words) {
     return rankGuesses(words, words, 1)[0].word;
 }
 
-export { buildConstraints, filterWords, patternCode, scoreGuess, rankGuesses, bestOpener };
+export { buildConstraints, filterWords, findCandidates, patternCode, scoreGuess, rankGuesses, bestOpener };

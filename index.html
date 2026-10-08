@@ -159,6 +159,7 @@ body {
 .s-num { font-family: var(--font-mono); font-size: 7px; width: 20px; text-align: right; color: var(--text-muted); }
 .sugg-word.used { color: var(--text-muted); text-decoration: line-through; }
 .sugg-item.used { opacity: 0.6; }
+.sugg-note { font-family: var(--font-body); font-size: 10px; line-height: 1.4; color: var(--present-text); background: var(--present-bg); border: 1px solid var(--present-border); border-radius: 8px; padding: 7px 10px; flex-shrink: 0; }
 .sugg-item.tappable { cursor: pointer; }
 .sugg-item.tappable:hover { border-color: var(--text-dim); }
 .sugg-item.tappable:active { opacity: 0.7; }
@@ -397,7 +398,7 @@ body {
 </div>
 
 <script type="module">
-import { buildConstraints, filterWords, rankGuesses, bestOpener } from './solver.js';
+import { buildConstraints, filterWords, findCandidates, rankGuesses, bestOpener } from './solver.js';
 
 // ═══════════════════════════════════════════════════
 // THEMES
@@ -598,8 +599,10 @@ function renderThemeCards() {
 // WORD LISTS
 // ═══════════════════════════════════════════════════
 const WORD_LIST_URL  = 'data/answers.txt'  // original Wordle answer list (2,315 words);
+const VALID_WORDS_URL = 'data/valid-words.txt';  // every valid guess; fallback when no known answer fits
 const PREV_WORDS_URL = 'data/used.txt'     // past answers snapshot (see data/README.md);
 let WORDS      = [];
+let VALID_WORDS = [];      // answers + every other valid guess (fallback pool)
 let USED_WORDS = new Set();
 let appReady   = false;
 let OPENER     = 'stare';   // replaced by the computed best opener once the word list loads
@@ -617,6 +620,18 @@ async function loadWords() {
   } catch (e) {
     console.error('Failed to load word list:', e);
     document.getElementById('loading-msg').textContent = 'Could not load word list. Check your connection.';
+  }
+}
+
+async function loadValidWords() {
+  try {
+    const res = await fetch(VALID_WORDS_URL);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const text = await res.text();
+    VALID_WORDS = text.split(/\s+/).map(w => w.trim().toLowerCase()).filter(w => /^[a-z]{5}$/.test(w));
+    console.log('Valid words loaded:', VALID_WORDS.length, 'words');
+  } catch (e) {
+    console.warn('Valid word list unavailable (no fallback beyond known answers):', e);
   }
 }
 
@@ -843,7 +858,11 @@ function renderSuggestions() {
   }
 
   const constraints = buildConstraints(guesses);
-  let   valid       = filterWords(constraints, WORDS);
+  // Known answers first; if none fit, fall back to every valid word (the NYT's answers
+  // are not all in our list)
+  const found       = findCandidates(constraints, WORDS, VALID_WORDS);
+  let   valid       = found.candidates;
+  const fallback    = found.source === 'valid';
 
   // Apply hide used words setting
   if (settings.hideUsed) {
@@ -852,7 +871,7 @@ function renderSuggestions() {
 
   // Suggestions may include 'probe' words that are not possible answers but split the field best
   const played   = new Set(guesses.map(g => g.word));
-  const top      = rankGuesses(valid, WORDS.filter(w => !played.has(w)), 20);
+  const top      = rankGuesses(valid, WORDS.filter(w => !played.has(w)), 20);   // candidates are added to the pool automatically
   const bestScore = top.length > 0 ? top[0].score : 0;
 
   if (valid.length === 0) {
@@ -862,12 +881,24 @@ function renderSuggestions() {
   } else {
     countEl.textContent = valid.length + ' words remain';
   }
+  countEl.title = '';
+  if (found.others > 0) {
+    countEl.textContent += ' · +' + found.others + ' unlisted';
+    countEl.title = found.others + ' other valid word' + (found.others === 1 ? '' : 's') + ' also fit but are not known Wordle answers';
+  }
 
   list.innerHTML = '';
 
   if (valid.length === 0) {
     list.innerHTML = '<div style="padding:16px;text-align:center;font-family:var(--font-body);font-size:12px;color:var(--text-muted);font-style:italic;">No words match. Try adjusting the tile colours.</div>';
     return;
+  }
+
+  if (fallback) {
+    const note = document.createElement('div');
+    note.className = 'sugg-note';
+    note.textContent = "No known Wordle answer fits these colours, so these are other valid words. The answer may be newer than Crackle's list.";
+    list.appendChild(note);
   }
 
   top.forEach((item, idx) => {
@@ -1069,7 +1100,7 @@ function logResult(solved) {
   guesses = loadGame();
   renderGrid();
   renderConstraints();
-  await Promise.all([loadWords(), loadPreviousWords()]);
+  await Promise.all([loadWords(), loadValidWords(), loadPreviousWords()]);
   if (appReady) OPENER = bestOpener(WORDS);
   renderSuggestions();
 })();

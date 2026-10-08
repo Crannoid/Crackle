@@ -389,7 +389,9 @@ body {
   </div>
 </div>
 
-<script>
+<script type="module">
+import { buildConstraints, filterWords, rankWords } from './solver.js';
+
 // ═══════════════════════════════════════════════════
 // THEMES
 // ═══════════════════════════════════════════════════
@@ -625,69 +627,6 @@ async function loadPreviousWords() {
 }
 
 // ═══════════════════════════════════════════════════
-// FILTER ENGINE
-// ═══════════════════════════════════════════════════
-function filterWords(constraints) {
-  const { greens = [null,null,null,null,null], yellows = {}, greys = [], counts, notAt = {} } = constraints;
-  return WORDS.filter(word => {
-    for (let i = 0; i < 5; i++) {
-      if (greens[i] && word[i] !== greens[i]) return false;
-    }
-    for (const [letter, excludedPositions] of Object.entries(yellows)) {
-      if (!word.includes(letter)) return false;
-      for (const pos of excludedPositions) {
-        if (word[pos] === letter) return false;
-      }
-    }
-    for (const letter of counts ? [] : greys) {
-      const isGreen  = greens.includes(letter);
-      const isYellow = letter in yellows;
-      if (!isGreen && !isYellow && word.includes(letter)) return false;
-    }
-    for (const [letter, positions] of Object.entries(notAt)) {
-      for (const pos of positions) {
-        if (word[pos] === letter) return false;
-      }
-    }
-    if (counts) {
-      for (const [letter, { min, max }] of Object.entries(counts)) {
-        let n = 0;
-        for (const ch of word) if (ch === letter) n++;
-        if (n < min || n > max) return false;
-      }
-    }
-    return true;
-  });
-}
-
-// ═══════════════════════════════════════════════════
-// RANKER
-// ═══════════════════════════════════════════════════
-function rankWords(validWords, n = 20) {
-  if (validWords.length === 0) return [];
-  const usePositional = validWords.length <= 50;
-  let scored;
-  if (usePositional) {
-    const pos = [{},{},{},{},{}];
-    for (const w of validWords) {
-      for (let i = 0; i < 5; i++) pos[i][w[i]] = (pos[i][w[i]] || 0) + 1;
-    }
-    scored = validWords.map(w => ({
-      word: w, score: w.split('').reduce((s, l, i) => s + (pos[i][l] || 0), 0)
-    }));
-  } else {
-    const freq = {};
-    for (const w of validWords) {
-      for (const l of new Set(w)) freq[l] = (freq[l] || 0) + 1;
-    }
-    scored = validWords.map(w => ({
-      word: w, score: [...new Set(w)].reduce((s, l) => s + (freq[l] || 0), 0)
-    }));
-  }
-  return scored.sort((a, b) => b.score - a.score).slice(0, n);
-}
-
-// ═══════════════════════════════════════════════════
 // APP STATE
 // ═══════════════════════════════════════════════════
 let guesses = [];
@@ -790,67 +729,6 @@ document.getElementById('clear-btn').addEventListener('click', () => {
 });
 
 // ═══════════════════════════════════════════════════
-// BUILD CONSTRAINTS
-// ═══════════════════════════════════════════════════
-/**
- * Folds a list of guesses into constraints, including exact letter counts.
- *
- * Each guess is { word, states[5] } with states 'absent' | 'present' | 'correct'.
- * Wordle colours duplicate letters one copy at a time, so for each letter in a
- * guess: the green + yellow copies are how many the answer has AT LEAST, and
- * if any copy of that letter is grey in the same guess, the answer has EXACTLY
- * that many (zero if none were green/yellow).
- *
- * @returns {{greens, yellows, greys, counts}} counts is { letter: { min, max } }
- *          where max is Infinity when no upper bound is known.
- */
-function buildConstraints() {
-    const greens  = [null, null, null, null, null];
-    const yellows = {};
-    const greys   = [];
-    const counts  = {};
-    const notAt   = {};   // positions where a letter is known NOT to be (from grey copies)
-
-    for (const g of guesses) {
-        const found = {};      // green + yellow copies of each letter in this guess
-        const hasGrey = {};    // letters with at least one grey copy in this guess
-        const greyPos = [];    // [letter, index] for each grey tile
-
-        for (let i = 0; i < 5; i++) {
-            const letter = g.word[i];
-            const state  = g.states[i];
-            if (state === 'correct') {
-                greens[i] = letter;
-                found[letter] = (found[letter] || 0) + 1;
-            } else if (state === 'present') {
-                if (!yellows[letter]) yellows[letter] = [];
-                if (!yellows[letter].includes(i)) yellows[letter].push(i);
-                found[letter] = (found[letter] || 0) + 1;
-            } else {
-                if (!greys.includes(letter)) greys.push(letter);
-                hasGrey[letter] = true;
-                greyPos.push([letter, i]);
-            }
-        }
-
-        // A grey copy of a letter also rules out that exact position
-        for (const [letter, i] of greyPos) {
-            if (!notAt[letter]) notAt[letter] = [];
-            if (!notAt[letter].includes(i)) notAt[letter].push(i);
-        }
-
-        for (const letter of new Set([...Object.keys(found), ...Object.keys(hasGrey)])) {
-            const c = counts[letter] || (counts[letter] = { min: 0, max: Infinity });
-            const n = found[letter] || 0;
-            c.min = Math.max(c.min, n);
-            if (hasGrey[letter]) c.max = Math.min(c.max, n);
-        }
-    }
-
-    return { greens, yellows, greys, counts, notAt };
-}
-
-// ═══════════════════════════════════════════════════
 // RENDER CONSTRAINTS
 // ═══════════════════════════════════════════════════
 function renderConstraints() {
@@ -860,7 +738,7 @@ function renderConstraints() {
     wrap.innerHTML = '<span class="no-constraints">No constraints yet</span>';
     return;
   }
-  const { greens, yellows, greys } = buildConstraints();
+  const { greens, yellows, greys } = buildConstraints(guesses);
   const hasGreens = greens.some(g => g !== null);
   if (hasGreens) {
     const p = document.createElement('span');
@@ -914,8 +792,8 @@ function renderSuggestions() {
     return;
   }
 
-  const constraints = buildConstraints();
-  let   valid       = filterWords(constraints);
+  const constraints = buildConstraints(guesses);
+  let   valid       = filterWords(constraints, WORDS);
 
   // Apply hide used words setting
   if (settings.hideUsed) {

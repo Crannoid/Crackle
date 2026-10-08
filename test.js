@@ -1,10 +1,13 @@
 // test.js — Manual Test Suite for Wordle Solver Logic
 // Run with: npm test
-// Tests the filter and ranker without needing a browser or UI.
+// Tests solver.js (the same module the app loads) without needing a browser or UI.
 
 import { loadWordList, getWordList } from './words.js';
-import { filterWords, buildConstraints } from './filter.js';
-import { getTopSuggestions } from './ranker.js';
+import { filterWords as filterIn, buildConstraints, rankWords } from './solver.js';
+
+// Tests filter the loaded word list, so bind it once
+const filterWords = constraints => filterIn(constraints, getWordList());
+const getTopSuggestions = (validWords, n) => rankWords(validWords, n);
 
 // ─────────────────────────────────────────
 // Simple test helper — no framework needed

@@ -3,7 +3,7 @@
 // Tests the filter and ranker without needing a browser or UI.
 
 import { loadWordList, getWordList } from './words.js';
-import { filterWords } from './filter.js';
+import { filterWords, buildConstraints } from './filter.js';
 import { getTopSuggestions } from './ranker.js';
 
 // ─────────────────────────────────────────
@@ -297,6 +297,66 @@ test('CHU start, excluding A,I,R,O,M,P,E,S,T,L returns valid words', () => {
 
     expect(results.length).toBeGreaterThan(0);
 });
+
+    // ── Duplicate Letter Tests ───────────
+    console.log('\n🔁 Duplicate Letter Tests');
+
+    const guess = (word, states) => ({ word, states });
+
+    test('Second L grey after first L green means exactly one L', () => {
+        // SKILL-style: L green at pos 3, second L at pos 4 grey
+        const c = buildConstraints([guess('skill', ['absent','absent','absent','correct','absent'])]);
+        expect(c.counts.l.min).toBe(1);
+        expect(c.counts.l.max).toBe(1);
+        const results = filterWords(c);
+        const doubleL = results.filter(w => w.split('').filter(ch => ch === 'l').length > 1);
+        expect(doubleL.length).toBe(0);
+        expect(results.every(w => w[3] === 'l')).toBeTrue();
+    });
+
+    test('Second L grey after first L yellow means exactly one L, not in that spot', () => {
+        const c = buildConstraints([guess('hello', ['absent','absent','present','absent','absent'])]);
+        const results = filterWords(c);
+        expect(results.length).toBeGreaterThan(0);
+        expect(results.every(w => w.split('').filter(ch => ch === 'l').length === 1 && w[2] !== 'l')).toBeTrue();
+    });
+
+    test('Two yellow copies of a letter require at least two', () => {
+        const c = buildConstraints([guess('eerie', ['present','present','absent','absent','absent'])]);
+        expect(c.counts.e.min).toBe(2);
+        const results = filterWords(c);
+        expect(results.every(w => w.split('').filter(ch => ch === 'e').length >= 2)).toBeTrue();
+    });
+
+    test('Plain grey letter is still fully excluded', () => {
+        const c = buildConstraints([guess('crane', ['absent','absent','absent','absent','absent'])]);
+        const results = filterWords(c);
+        expect(results.every(w => !/[crane]/.test(w))).toBeTrue();
+    });
+
+    test('Simulation: filter exactly matches real Wordle feedback (300 random games, 3 guesses each)', () => {
+        const score = (guess, ans) => {
+            const s = Array(5).fill('absent'), left = {};
+            for (let i = 0; i < 5; i++) {
+                if (guess[i] === ans[i]) s[i] = 'correct'; else left[ans[i]] = (left[ans[i]] || 0) + 1;
+            }
+            for (let i = 0; i < 5; i++) {
+                if (s[i] !== 'absent') continue;
+                if (left[guess[i]] > 0) { s[i] = 'present'; left[guess[i]]--; }
+            }
+            return s.join();
+        };
+        let seed = 7;
+        const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+        const pick = () => words[Math.floor(rnd() * words.length)];
+        for (let t = 0; t < 300; t++) {
+            const ans = pick();
+            const guesses = [pick(), pick(), pick()].map(g => ({ word: g, states: score(g, ans).split(',') }));
+            const got = filterWords(buildConstraints(guesses)).sort().join();
+            const truth = words.filter(w => guesses.every(g => score(g.word, w) === g.states.join())).sort().join();
+            if (got !== truth) throw new Error(`answer ${ans}, guesses ${guesses.map(g => g.word)}: filter and real Wordle feedback disagree`);
+        }
+    });
 
     // ── Summary ──────────────────────────
     console.log(`\n${'─'.repeat(40)}`);

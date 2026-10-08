@@ -335,7 +335,7 @@ body {
             <div class="toggle-row">
               <div>
                 <div class="toggle-label">Hide used answers</div>
-                <div class="toggle-desc">Remove past Wordle words from suggestions</div>
+                <div class="toggle-desc">Remove past Wordle words (the NYT can repeat answers)</div>
               </div>
               <div class="toggle" id="toggle-hide-used" onclick="toggleSetting('hideUsed')">
                 <div class="toggle-thumb"></div>
@@ -588,8 +588,8 @@ function renderThemeCards() {
 // ═══════════════════════════════════════════════════
 // WORD LISTS
 // ═══════════════════════════════════════════════════
-const WORD_LIST_URL  = 'https://raw.githubusercontent.com/tabatkins/wordle-list/main/words';
-const PREV_WORDS_URL = 'https://eagerterrier.github.io/previous-wordle-words/alphabetical.txt';
+const WORD_LIST_URL  = 'data/answers.txt'  // original Wordle answer list (2,315 words);
+const PREV_WORDS_URL = 'data/used.txt'     // past answers snapshot (see data/README.md);
 let WORDS      = [];
 let USED_WORDS = new Set();
 let appReady   = false;
@@ -597,6 +597,7 @@ let appReady   = false;
 async function loadWords() {
   try {
     const res  = await fetch(WORD_LIST_URL);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
     const text = await res.text();
     WORDS = text.split('\n')
       .map(w => w.trim().toLowerCase())

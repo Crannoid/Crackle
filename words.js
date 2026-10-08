@@ -1,18 +1,16 @@
 // words.js — Word List Loader for Wordle Solver
 
-// We load the word list from a public source at runtime.
-// Source: Standard Wordle answers list (~2,315 common 5-letter words)
-// This avoids bundling a large word list into your codebase.
+// Loads the Wordle answer list from data/answers.txt (the original 2,315 answers).
+// Uses fs under Node (tests); the browser app has its own loader in index.html.
 
-const WORD_LIST_URL = 'https://raw.githubusercontent.com/tabatkins/wordle-list/main/words';
+const WORD_LIST_URL = new URL('./data/answers.txt', import.meta.url);
 
 let wordList = [];
 
 async function loadWordList() {
     try {
-        const response = await fetch(WORD_LIST_URL);
-        if (!response.ok) throw new Error(`Failed to load word list: ${response.status}`);
-        const text = await response.text();
+        const { readFile } = await import('node:fs/promises');
+        const text = await readFile(WORD_LIST_URL, 'utf8');
 
         // Parse: one word per line, lowercase, exactly 5 letters
         wordList = text

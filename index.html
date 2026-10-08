@@ -158,6 +158,10 @@ body {
 .s-num { font-family: var(--font-mono); font-size: 7px; width: 20px; text-align: right; color: var(--text-muted); }
 .sugg-word.used { color: var(--text-muted); text-decoration: line-through; }
 .sugg-item.used { opacity: 0.6; }
+.sugg-item.tappable { cursor: pointer; }
+.sugg-item.tappable:hover { border-color: var(--text-dim); }
+.sugg-item.tappable:active { opacity: 0.7; }
+.sugg-item.tappable:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 .sugg-used-tag { font-family: var(--font-body); font-size: 7px; color: var(--text-muted); font-style: italic; letter-spacing: 0.06em; }
 .sugg-probe-tag { font-family: var(--font-body); font-size: 7px; color: var(--present-text); letter-spacing: 0.08em; text-transform: uppercase; }
 
@@ -736,9 +740,15 @@ function addGuess() {
     setTimeout(() => input.classList.remove('error'), 600);
     return;
   }
-  guesses.push({ word, states: ['absent','absent','absent','absent','absent'] });
+  addWord(word);
   input.value = '';
   input.focus();
+}
+
+// Adds a guess row (all grey, ready to be coloured). Used by the Add button and by tapping a suggestion.
+function addWord(word) {
+  if (!appReady || guesses.length >= MAX_ROWS) return;
+  guesses.push({ word, states: ['absent','absent','absent','absent','absent'] });
   saveGame();
   renderGrid();
   renderConstraints();
@@ -808,12 +818,15 @@ function renderSuggestions() {
         <div class="empty-heading">Enter your<br>first guess above</div>
         <div class="empty-body">Type a word, press Add, then tap each tile to mark it green, yellow or grey.</div>
         <div style="margin-top:8px;">
-          <div class="starter-label">Try starting with</div>
-          <div class="starter-tiles">
+          <div class="starter-label">Tap to start with</div>
+          <div class="starter-tiles" id="starter-opener" role="button" tabindex="0" aria-label="Add the suggested opener as the first guess" style="cursor:pointer;">
             ${OPENER.split('').map(l => `<div class="starter-tile">${l.toUpperCase()}</div>`).join('')}
           </div>
         </div>
       </div>`;
+    const opener = document.getElementById('starter-opener');
+    opener.addEventListener('click', () => addWord(OPENER));
+    opener.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); addWord(OPENER); } });
     return;
   }
 
@@ -826,7 +839,8 @@ function renderSuggestions() {
   }
 
   // Suggestions may include 'probe' words that are not possible answers but split the field best
-  const top      = rankGuesses(valid, WORDS, 20);
+  const played   = new Set(guesses.map(g => g.word));
+  const top      = rankGuesses(valid, WORDS.filter(w => !played.has(w)), 20);
   const bestScore = top.length > 0 ? top[0].score : 0;
 
   if (valid.length === 0) {
@@ -853,7 +867,15 @@ function renderSuggestions() {
     const pct     = Math.round(quality * 100);
     const scoreTxt = (quality * 9.9).toFixed(1);
     const el = document.createElement('div');
-    el.className = 'sugg-item' + (isBest ? ' best' : '') + (isUsed ? ' used' : '');
+    const canAdd = guesses.length < MAX_ROWS;
+    el.className = 'sugg-item' + (isBest ? ' best' : '') + (isUsed ? ' used' : '') + (canAdd ? ' tappable' : '');
+    if (canAdd) {
+      el.tabIndex = 0;
+      el.setAttribute('role', 'button');
+      el.setAttribute('aria-label', 'Add ' + item.word.toUpperCase() + ' as the next guess');
+      el.addEventListener('click', () => addWord(item.word));
+      el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); addWord(item.word); } });
+    }
     const scoreNumHTML = settings.showScores
       ? `<div class="s-num">${scoreTxt}</div>` : '';
     el.innerHTML = `

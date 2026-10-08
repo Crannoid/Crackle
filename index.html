@@ -636,6 +636,30 @@ const MAX_ROWS   = 6;
 const STATE_CYCLE = ['absent', 'present', 'correct'];
 
 // ═══════════════════════════════════════════════════
+// SAVED GAME (survives a refresh; discarded on a new day)
+// ═══════════════════════════════════════════════════
+const GAME_KEY = 'crackle-game';
+
+function localDate() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+
+function saveGame() {
+  try { localStorage.setItem(GAME_KEY, JSON.stringify({ date: localDate(), guesses })); } catch {}
+}
+
+function loadGame() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(GAME_KEY) || 'null');
+    if (!saved || saved.date !== localDate() || !Array.isArray(saved.guesses)) return [];
+    return saved.guesses.slice(0, MAX_ROWS).filter(g =>
+      g && /^[a-z]{5}$/.test(g.word) && Array.isArray(g.states) && g.states.length === 5 &&
+      g.states.every(st => STATE_CYCLE.includes(st)));
+  } catch { return []; }
+}
+
+// ═══════════════════════════════════════════════════
 // SCREEN SWITCHING
 // ═══════════════════════════════════════════════════
 window.showScreen = function(name) {
@@ -688,6 +712,7 @@ function cycleTile(r, c) {
   if (!g) return;
   const idx = STATE_CYCLE.indexOf(g.states[c]);
   g.states[c] = STATE_CYCLE[(idx + 1) % STATE_CYCLE.length];
+  saveGame();
   renderGrid();
   renderConstraints();
   renderSuggestions();
@@ -714,6 +739,7 @@ function addGuess() {
   guesses.push({ word, states: ['absent','absent','absent','absent','absent'] });
   input.value = '';
   input.focus();
+  saveGame();
   renderGrid();
   renderConstraints();
   renderSuggestions();
@@ -724,6 +750,7 @@ function addGuess() {
 // ═══════════════════════════════════════════════════
 document.getElementById('clear-btn').addEventListener('click', () => {
   guesses = [];
+  saveGame();
   document.getElementById('word-input').value = '';
   renderGrid();
   renderConstraints();
@@ -1005,7 +1032,9 @@ function logResult(solved) {
   loadSettings();
   applyTheme(settings.theme);
   applyToggleUI();
+  guesses = loadGame();
   renderGrid();
+  renderConstraints();
   await Promise.all([loadWords(), loadPreviousWords()]);
   if (appReady) OPENER = bestOpener(WORDS);
   renderSuggestions();

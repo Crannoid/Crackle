@@ -160,6 +160,11 @@ body {
 .sugg-word.used { color: var(--text-muted); text-decoration: line-through; }
 .sugg-item.used { opacity: 0.6; }
 .sugg-note { font-family: var(--font-body); font-size: 10px; line-height: 1.4; color: var(--present-text); background: var(--present-bg); border: 1px solid var(--present-border); border-radius: 8px; padding: 7px 10px; flex-shrink: 0; }
+.sugg-others { flex-shrink: 0; padding: 6px 2px 2px; }
+.sugg-others-label { font-family: var(--font-body); font-size: 9px; color: var(--text-muted); margin-bottom: 5px; }
+.sugg-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.sugg-chip { font-family: var(--font-mono); font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: var(--text-secondary); background: var(--surface); border: 1px dashed var(--border); border-radius: 8px; padding: 5px 9px; cursor: pointer; }
+.sugg-chip:active { opacity: 0.7; }
 .sugg-item.tappable { cursor: pointer; }
 .sugg-item.tappable:hover { border-color: var(--text-dim); }
 .sugg-item.tappable:active { opacity: 0.7; }
@@ -905,8 +910,8 @@ function renderSuggestions() {
     const isBest  = idx === 0;
     const isProbe = !item.isCandidate;
     const isUsed  = !isProbe && !settings.hideUsed && USED_WORDS.has(item.word);
-    // score = expected words left (lower is better); show it as quality relative to the best, 9.9 = best
-    const quality = (1 + bestScore) / (1 + item.score);
+    // score = estimated guesses to finish (lower is better); show it as quality relative to the best, 9.9 = best
+    const quality = bestScore / item.score;
     const pct     = Math.round(quality * 100);
     const scoreTxt = (quality * 9.9).toFixed(1);
     const el = document.createElement('div');
@@ -934,6 +939,26 @@ function renderSuggestions() {
       </div>`;
     list.appendChild(el);
   });
+
+  // Valid words that also fit but are not known Wordle answers (the NYT's answers are not all
+  // in our list). Shown after the ranked suggestions so they can still be picked.
+  if (found.otherWords.length > 0 && found.otherWords.length <= 30 && guesses.length < MAX_ROWS) {
+    const box = document.createElement('div');
+    box.className = 'sugg-others';
+    box.innerHTML = '<div class="sugg-others-label">Also fit, but not known answers (tap to use):</div>';
+    const chips = document.createElement('div');
+    chips.className = 'sugg-chips';
+    for (const w of found.otherWords) {
+      const chip = document.createElement('button');
+      chip.className = 'sugg-chip';
+      chip.type = 'button';
+      chip.textContent = w.toUpperCase();
+      chip.addEventListener('click', () => addWord(w));
+      chips.appendChild(chip);
+    }
+    box.appendChild(chips);
+    list.appendChild(box);
+  }
 
   if (valid.length > 20) {
     const more = document.createElement('div');

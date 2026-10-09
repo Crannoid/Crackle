@@ -270,7 +270,7 @@ async function runTests() {
         expect(patternCode('crane', 'crane')).toBe(242);
     });
 
-    test('Ranker returns results best first (lowest expected words left)', () => {
+    test('Ranker returns results best first (lowest estimated guesses)', () => {
         const suggestions = rankGuesses(filterWords(startingConstraints), words, 10);
         for (let i = 0; i < suggestions.length - 1; i++) {
             if (suggestions[i].score > suggestions[i + 1].score) {
@@ -312,6 +312,18 @@ async function runTests() {
         expect(ranked[0].isCandidate).toBe(false);
         const bestCandidate = ranked.find(s => s.isCandidate);
         expect(ranked[0].score).toBeLessThan(bestCandidate.score);
+    });
+
+    test('Regression: STARE then CAROL suggests a real candidate first (rayon), not a probe', () => {
+        const guesses = [
+            { word: 'stare', states: ['absent','absent','present','present','absent'] },
+            { word: 'carol', states: ['absent','correct','present','correct','absent'] }
+        ];
+        const found = findCandidates(buildConstraints(guesses), words, validWords);
+        expect(found.candidates.length).toBe(7);
+        const ranked = rankGuesses(found.candidates, words, 10);
+        expect(ranked[0].isCandidate).toBeTrue();
+        expect(ranked[0].word).toBe('rayon');
     });
 
     test('Opener is a known word and the top-ranked guess for a fresh game', () => {
@@ -447,6 +459,8 @@ test('CHU start, excluding A,I,R,O,M,P,E,S,T,L returns valid words', () => {
         expect(found.source).toBe('answers');
         expect(found.candidates.every(w => words.includes(w))).toBeTrue();
         expect(found.others).toBeGreaterThan(0);
+        expect(found.otherWords.length).toBe(found.others);
+        expect(found.otherWords.every(w => !words.includes(w))).toBeTrue();
     });
 
     test('Fallback is off when no valid-word list is given', () => {

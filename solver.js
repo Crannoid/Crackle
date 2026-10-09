@@ -126,18 +126,20 @@ function filterWords(constraints, words) {
  * @param {Object} constraints - from buildConstraints()
  * @param {Array}  answers     - known Wordle answers
  * @param {Array}  validWords  - every word Wordle accepts (should include the answers)
- * @returns {{ candidates: Array, source: 'answers'|'valid', others: number }}
+ * @returns {{ candidates: Array, source: 'answers'|'valid', others: number, otherWords: Array }}
  *          source 'valid' means no known answer fits and candidates are plain valid words.
- *          others is how many extra valid (non-answer) words also fit, when source is 'answers'.
+ *          otherWords are the extra valid (non-answer) words that also fit when source is 'answers'
+ *          (others is how many); they are shown, not ranked.
  */
 function findCandidates(constraints, answers, validWords = []) {
     const known = filterWords(constraints, answers);
     const fromValid = validWords.length ? filterWords(constraints, validWords) : [];
     if (known.length === 0 && fromValid.length > 0) {
-        return { candidates: fromValid, source: 'valid', others: 0 };
+        return { candidates: fromValid, source: 'valid', others: 0, otherWords: [] };
     }
     const knownSet = new Set(known);
-    return { candidates: known, source: 'answers', others: fromValid.filter(w => !knownSet.has(w)).length };
+    const otherWords = fromValid.filter(w => !knownSet.has(w));
+    return { candidates: known, source: 'answers', others: otherWords.length, otherWords };
 }
 
 const POW3 = [1, 3, 9, 27, 81];
@@ -175,30 +177,42 @@ function scoreGuess(guess, answer) {
     return states;
 }
 
+// Average extra guesses still needed once the candidates are down to a group of
+// c words, measured by simulating thousands of games with this solver
+// (2026-10-09): 1 word -> 1, 2 -> 1.5, 3 -> 1.8, ... then growing with log2(c).
+const EXTRA_GUESSES_SMALL = [0, 1, 1.5, 1.8, 1.9, 1.95, 2.0, 2.1, 2.1];
+function extraGuesses(c) {
+    return c < EXTRA_GUESSES_SMALL.length ? EXTRA_GUESSES_SMALL[c] : 2.1 + 0.2 * Math.log2(c / 8);
+}
+
+// Estimates are noisy, so a guess that could itself be the answer is preferred unless
+// a probe is clearly better (it can also finish the game early).
+const CANDIDATE_BONUS = 0.1;
+
 /**
- * Ranks guesses by how much they are expected to narrow the field.
+ * Ranks guesses by estimated total guesses to finish (lower is better).
  *
  * For each possible guess, play it against every remaining candidate and group
- * the candidates by the feedback they would produce. If the answer is equally
- * likely to be any candidate, the expected number of candidates left after the
- * guess is sum(group size squared) / N. Lower is better. A guess that is itself
- * a candidate also wins outright 1 time in N, so its all-green group counts as
- * solved (zero left).
+ * the candidates by the feedback they would produce. With the answer equally
+ * likely to be any candidate, the estimate is 1 (this guess) plus, for each
+ * group that is not the all-green win, its share of the candidates times the
+ * extra guesses a group of that size still needs.
  *
  * Guesses may come from `pool` (any known Wordle word), not only the candidates,
  * so a "probe" word that is not a possible answer can win when it splits the
- * candidates better than any real answer would. With 2 or fewer candidates a
- * probe cannot help, so only candidates are considered.
+ * candidates well enough to beat guessing a real answer. With 2 or fewer
+ * candidates a probe cannot help, so only candidates are considered.
  *
  * @param {Array}  candidates - words still possible
  * @param {Array}  pool       - words allowed as guesses
  * @param {number} n          - how many to return
- * @returns {Array} [{ word, score, isCandidate }] best first; score = expected words left
+ * @returns {Array} [{ word, score, isCandidate }] best first; score = estimated guesses to finish
+ *          (candidates get CANDIDATE_BONUS knocked off)
  */
 function rankGuesses(candidates, pool, n = 20) {
     const N = candidates.length;
     if (N === 0) return [];
-    if (N === 1) return [{ word: candidates[0], score: 0, isCandidate: true }];
+    if (N === 1) return [{ word: candidates[0], score: 1, isCandidate: true }];
 
     const candidateSet = new Set(candidates);
     let guesses = candidates;
@@ -212,10 +226,13 @@ function rankGuesses(candidates, pool, n = 20) {
     for (const guess of guesses) {
         buckets.fill(0);
         for (let j = 0; j < N; j++) buckets[patternCode(guess, candidates[j])]++;
-        let sum = 0;
-        for (let k = 0; k < ALL_GREEN; k++) sum += buckets[k] * buckets[k];
-        if (!candidateSet.has(guess)) sum += buckets[ALL_GREEN] * buckets[ALL_GREEN];
-        results.push({ word: guess, score: sum / N, isCandidate: candidateSet.has(guess) });
+        let expected = 1;
+        for (let k = 0; k < ALL_GREEN; k++) {
+            const size = buckets[k];
+            if (size > 0) expected += (size / N) * extraGuesses(size);
+        }
+        const isCandidate = candidateSet.has(guess);
+        results.push({ word: guess, score: isCandidate ? expected - CANDIDATE_BONUS : expected, isCandidate });
     }
 
     results.sort((x, y) =>
